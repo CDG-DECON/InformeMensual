@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Informe Ejecutivo de Obras</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0a2540;
+            --primary-light: #1a3f5f;
+            --accent: #00d4ff;
+            --accent-dark: #00a8cc;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-dark: #0f172a;
+            --bg-light: #f8fafc;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --card-shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 24px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.1;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .period-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .period-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .period-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(10, 37, 64, 0.3);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .metric-change {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            color: var(--success);
+        }
+
+        .metric-change.negative {
+            color: var(--danger);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .chart-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-top: 0.25rem;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table thead th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+
+        .data-table thead th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg-light);
+        }
+
+        .data-table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        .data-table tbody tr:last-child td:first-child {
+            border-radius: 0 0 0 12px;
+        }
+
+        .data-table tbody tr:last-child td:last-child {
+            border-radius: 0 0 12px 0;
+        }
+
+        .obra-name {
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .numeric-cell {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .badge.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .footer-note {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid var(--accent);
+        }
+
+        .footer-note p {
+            color: var(--text-light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .legend-box {
+            background: var(--bg-light);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .legend-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .legend-text {
+            font-size: 0.875rem;
+            color: var(--text-dark);
+            line-height: 1.5;
+        }
+
+        .legend-title {
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animated {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 3rem;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .certif-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .certif-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header animated">
+            <div class="header-content">
+                <h1>Informe Ejecutivo de Obras</h1>
+                <p class="subtitle">Dashboard de rendimiento y certificaciones</p>
+                
+                <div class="period-selector">
+                    <button class="period-btn active" data-period="2026-04">Abril 2026 (Actual)</button>
+                    <button class="period-btn" data-period="2026-03">Marzo 2026</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="loading">Cargando datos...</div>
+
+        <div id="dashboard-content" class="animated">
+            <!-- Dashboard content will be injected here -->
+        </div>
+    </div>
+
+    <script>
+        // Datos completos del informe
+        const dataStore = {
+            '2026-04': {
+                month: 'Abril 2026',
+                idxs: {
+                    obras: ['SM', 'ARN', 'PEDR', 'LMB'],
+                    martella: {
+                        promedio: 0.96,
+                        q1: [0.96, 1.03, 1.06, 0.96],
+                        q2: [0, 0, 0, 0]
+                    },
+                    therock: {
+                        promedio: 1.01,
+                        q1: [1.01, 0.96, 1.16, 1.42],
+                        q2: [0, 0, 0, 0]
+                    }
+                },
+                certif: {
+                    obras: ['SM', 'ARN', 'PEDR ALB', 'LMB', 'SUP', 'PAMP 2025', 'OH PAMPA', 'DELG'],
+                    avanceAcum: [0.5027, 0.1731, 0.3183, 0.1077, null, null, 0.4498, null],
+                    certifReal: [114084207.62, 25426406.55, 46210155.63, 16633410.71, 39439108, 0, 10703167, 10198272.11],
+                    certifPrevisto: [104669033.65, 27503464.99, 95320293.01, 34274963.32, 0, 0, 0, 0],
+                    desvio: [9415173.97, -2077058.44, -49110137.37, -17641552.60, null, null, null, null],
+                    desvioPct: [0.0900, -0.0755, -1.0628, -1.0606, null, null, null, null],
+                    adicionales: [null, null, 0, 4862844, 0, 0, 0, 0],
+                    totalReal: 262694727.63,
+                    totalPrevisto: 261767754.96
+                }
+            },
+            '2026-03': {
+                month: 'Marzo 2026',
+                idxs: {
+                    obras: ['SM', 'ARN', 'PEDR', 'LMB', 'SUP'],
+                    martella: {
+                        promedio: 1.055,
+                        q1: [1.07, 1.05, 1.05, 0.974911, 0.963139],
+                        q2: [1.04, 0.53, 1.05, 0.965519, 0]
+                    },
+                    therock: {
+                        promedio: 1.02,
+                        q1: [1.14, 1.03, 1.02, 1.576506, 0.403023],
+                        q2: [0.9, 0.62, 1.18, 0.817434, 0]
+                    }
+                },
+                certif: {
+                    obras: ['SM', 'ARN', 'PEDR ALB', 'LMB', 'SUP', 'PAMP', 'OH PAMPA'],
+                    avanceAcum: [0.4442, 0.14, 0.2472, 0.085, 0.4297, 0.8037, 0.2161],
+                    certifReal: [113822063, 11835598.72, 83681875, 22095922, 16500314, 8691, 9894625],
+                    certifPrevisto: [92500133.71, 14502989.84, 82374064.16, 63470495.32, 20313940, 0, 0],
+                    desvio: [21321929.29, -2667391.12, 1307810.84, -41374573.32, -3813626, null, null],
+                    desvioPct: [0.2305, -0.1839, 0.0156, -1.8725, -0.2311, null, null],
+                    adicionales: [2296000, 3023956, 0, 10509273, 0, 0, 0],
+                    totalReal: 257830397.72,
+                    totalPrevisto: 273161623.03
+                }
+            }
+        };
+
+        let currentPeriod = '2026-04';
+        let idxChart = null;
+        let certifChart = null;
+
+        function formatCurrency(value) {
+            if (value === null || value === undefined) return '-';
+            return new Intl.NumberFormat('es-AR', {
+                style: 'currency',
+                currency: 'ARS',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
+
+        function formatPercent(value) {
+            if (value === null || value === undefined) return '-';
+            return (value * 100).toFixed(1) + '%';
+        }
+
+        function formatNumber(value, decimals = 2) {
+            if (value === null || value === undefined) return '-';
+            return value.toFixed(decimals);
+        }
+
+        function getStatusBadge(desvio) {
+            if (desvio === null || desvio === undefined) return '';
+            if (desvio > 0.05) return '<span class="badge success">Superado</span>';
+            if (desvio < -0.05) return '<span class="badge danger">Bajo Meta</span>';
+            return '<span class="badge warning">En Meta</span>';
+        }
+
+        function renderDashboard(period) {
+            const data = dataStore[period];
+            const container = document.getElementById('dashboard-content');
+            
+            // Calcular métricas
+            const avgMartella = data.idxs.martella.promedio;
+            const avgTheRock = data.idxs.therock.promedio;
+            const totalCertif = data.certif.totalReal;
+            const desvioProm = data.certif.desvio.filter(v => v !== null).reduce((a, b) => a + b, 0) / 
+                              data.certif.desvio.filter(v => v !== null).length;
+            const obrasActivas = data.certif.obras.filter((_, i) => data.certif.certifReal[i] > 0).length;
+
+            container.innerHTML = `
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">Martella IDX Promedio</div>
+                        <div class="metric-value">${formatNumber(avgMartella)}</div>
+                        <div class="metric-change ${avgMartella > 1 ? 'positive' : avgMartella < 0.95 ? 'negative' : ''}">
+                            ${avgMartella > 1 ? '↑ Sobre especializado' : avgMartella < 0.95 ? '↓ Sub especializado' : '✓ Óptimo'}
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">The Rock IDX Promedio</div>
+                        <div class="metric-value">${formatNumber(avgTheRock)}</div>
+                        <div class="metric-change ${avgTheRock > 1 ? 'positive' : 'negative'}">
+                            ${avgTheRock > 1 ? '↑ Rendimiento superior' : '↓ Bajo rendimiento'}
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Total Certificado</div>
+                        <div class="metric-value" style="font-size: 1.5rem;">${formatCurrency(totalCertif)}</div>
+                        <div class="metric-change">
+                            ${obrasActivas} obras activas
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Desvío Promedio</div>
+                        <div class="metric-value">${formatPercent(desvioProm)}</div>
+                        <div class="metric-change ${desvioProm > 0 ? 'positive' : 'negative'}">
+                            vs. certificado previsto
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div>
+                                <h3 class="chart-title">Índices de Rendimiento por Obra</h3>
+                                <p class="chart-subtitle">Martella IDX vs The Rock IDX - ${data.month}</p>
+                            </div>
+                        </div>
+                        <canvas id="idxChart"></canvas>
+                        
+                        <div class="legend-box">
+                            <div class="legend-item">
+                                <div class="legend-icon" style="background: #667eea;"></div>
+                                <div class="legend-text">
+                                    <div class="legend-title">Martella IDX (Q1)</div>
+                                    Especialización del plantel según horas trabajadas por persona
+                                </div>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-icon" style="background: #764ba2;"></div>
+                                <div class="legend-text">
+                                    <div class="legend-title">The Rock IDX (Q1)</div>
+                                    Relación entre avance alcanzado y personal en obra
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div>
+                                <h3 class="chart-title">Distribución de Certificaciones</h3>
+                                <p class="chart-subtitle">Por obra - ${data.month}</p>
+                            </div>
+                        </div>
+                        <canvas id="certifChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="certif-grid">
+                    <div class="table-card" style="grid-column: 1 / -1;">
+                        <h3 class="chart-title" style="margin-bottom: 1.5rem;">Detalle de Certificaciones por Obra</h3>
+                        <div style="overflow-x: auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Obra</th>
+                                        <th>Avance Acum.</th>
+                                        <th>Certificado Real</th>
+                                        <th>Certificado Previsto</th>
+                                        <th>Desvío $</th>
+                                        <th>Desvío %</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.certif.obras.map((obra, i) => {
+                                        if (data.certif.certifReal[i] === 0) return '';
+                                        return `
+                                            <tr>
+                                                <td class="obra-name">${obra}</td>
+                                                <td class="numeric-cell">${formatPercent(data.certif.avanceAcum[i])}</td>
+                                                <td class="numeric-cell">${formatCurrency(data.certif.certifReal[i])}</td>
+                                                <td class="numeric-cell">${formatCurrency(data.certif.certifPrevisto[i])}</td>
+                                                <td class="numeric-cell" style="color: ${data.certif.desvio[i] > 0 ? 'var(--success)' : 'var(--danger)'}">
+                                                    ${formatCurrency(data.certif.desvio[i])}
+                                                </td>
+                                                <td class="numeric-cell">${formatPercent(data.certif.desvioPct[i])}</td>
+                                                <td>${getStatusBadge(data.certif.desvioPct[i])}</td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <h3 class="chart-title" style="margin-bottom: 1.5rem;">Índices por Obra y Quincena</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Obra</th>
+                                    <th>Martella IDX Prom.</th>
+                                    <th>Martella Q1</th>
+                                    <th>Martella Q2</th>
+                                    <th>The Rock IDX Prom.</th>
+                                    <th>The Rock Q1</th>
+                                    <th>The Rock Q2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.idxs.obras.map((obra, i) => `
+                                    <tr>
+                                        <td class="obra-name">${obra}</td>
+                                        <td class="numeric-cell">${formatNumber((data.idxs.martella.q1[i] + data.idxs.martella.q2[i]) / (data.idxs.martella.q2[i] > 0 ? 2 : 1))}</td>
+                                        <td class="numeric-cell">${formatNumber(data.idxs.martella.q1[i])}</td>
+                                        <td class="numeric-cell">${data.idxs.martella.q2[i] > 0 ? formatNumber(data.idxs.martella.q2[i]) : '-'}</td>
+                                        <td class="numeric-cell">${formatNumber((data.idxs.therock.q1[i] + data.idxs.therock.q2[i]) / (data.idxs.therock.q2[i] > 0 ? 2 : 1))}</td>
+                                        <td class="numeric-cell">${formatNumber(data.idxs.therock.q1[i])}</td>
+                                        <td class="numeric-cell">${data.idxs.therock.q2[i] > 0 ? formatNumber(data.idxs.therock.q2[i]) : '-'}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="footer-note">
+                    <p><strong>Definiciones:</strong></p>
+                    <p style="margin-top: 0.75rem;"><strong>Martella IDX:</strong> Muestra la especialización del plantel en función de las horas trabajadas por cada persona con su respectiva especialización.</p>
+                    <p style="margin-top: 0.5rem;"><strong>The Rock IDX:</strong> Relaciona el avance alcanzado en el mes con el personal en obra. Lo certificado otorga partida de mano de obra que se traduce en "horas disponibles", las cuales se comparan con las horas reales consumidas en obra para las tareas certificadas.</p>
+                    <p style="margin-top: 0.75rem;"><em>Si The Rock IDX < 1: se consumieron más horas de las disponibles. Si The Rock IDX > 1: el rendimiento fue mejor. Si The Rock IDX > Martella IDX: el rendimiento alcanzado fue suficiente para compensar la sobre especialización del plantel.</em></p>
+                </div>
+            `;
+
+            // Render charts
+            renderIdxChart(data);
+            renderCertifChart(data);
+        }
+
+        function renderIdxChart(data) {
+            const ctx = document.getElementById('idxChart');
+            
+            if (idxChart) {
+                idxChart.destroy();
+            }
+
+            idxChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.idxs.obras,
+                    datasets: [
+                        {
+                            label: 'Martella IDX (Q1)',
+                            data: data.idxs.martella.q1,
+                            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8
+                        },
+                        {
+                            label: 'The Rock IDX (Q1)',
+                            data: data.idxs.therock.q1,
+                            backgroundColor: 'rgba(118, 75, 162, 0.8)',
+                            borderColor: 'rgba(118, 75, 162, 1)',
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 13,
+                                    weight: '600',
+                                    family: 'Manrope'
+                                },
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: '700',
+                                family: 'Manrope'
+                            },
+                            bodyFont: {
+                                size: 13,
+                                family: 'JetBrains Mono'
+                            },
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'JetBrains Mono',
+                                    size: 11
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'JetBrains Mono',
+                                    weight: '600',
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderCertifChart(data) {
+            const ctx = document.getElementById('certifChart');
+            
+            if (certifChart) {
+                certifChart.destroy();
+            }
+
+            // Filtrar solo obras con certificación
+            const obrasFiltradas = data.certif.obras.filter((_, i) => data.certif.certifReal[i] > 0);
+            const valoresFiltrados = data.certif.certifReal.filter(v => v > 0);
+
+            certifChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: obrasFiltradas,
+                    datasets: [{
+                        data: valoresFiltrados,
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(168, 85, 247, 0.8)',
+                            'rgba(236, 72, 153, 0.8)'
+                        ],
+                        borderWidth: 3,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12,
+                                    weight: '600',
+                                    family: 'Manrope'
+                                },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const value = data.datasets[0].data[i];
+                                            const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return {
+                                                text: `${label}: ${percentage}%`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: '700',
+                                family: 'Manrope'
+                            },
+                            bodyFont: {
+                                size: 12,
+                                family: 'JetBrains Mono'
+                            },
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${formatCurrency(value)} (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Event listeners para cambio de período
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const period = this.dataset.period;
+                currentPeriod = period;
+                
+                const loading = document.querySelector('.loading');
+                const content = document.getElementById('dashboard-content');
+                
+                loading.style.display = 'block';
+                content.style.opacity = '0';
+                
+                setTimeout(() => {
+                    renderDashboard(period);
+                    loading.style.display = 'none';
+                    content.style.opacity = '1';
+                }, 300);
+            });
+        });
+
+        // Render inicial
+        renderDashboard(currentPeriod);
+    </script>
+</body>
+</html>
