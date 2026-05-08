@@ -1,519 +1,6 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Informe Mensual de Obras</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #006854;
-            --primary-light: #00A887;
-            --accent: #4BFFDD;
-            --accent-light: #D9FFF8;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --bg-dark: #0f172a;
-            --bg-light: #f8fafc;
-            --text-dark: #1e293b;
-            --text-light: #64748b;
-            --border: #e2e8f0;
-            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --card-shadow-hover: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-        }
+bash
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Manrope', sans-serif;
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-            min-height: 100vh;
-            padding: 2rem;
-            color: var(--text-dark);
-        }
-
-        /* Login Screen */
-        #login-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        }
-
-        .login-box {
-            background: white;
-            border-radius: 24px;
-            padding: 3rem;
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            max-width: 450px;
-            width: 90%;
-        }
-
-        .login-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            text-align: center;
-        }
-
-        .login-subtitle {
-            font-size: 1rem;
-            color: var(--text-light);
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .login-input {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            font-family: 'Manrope', sans-serif;
-            margin-bottom: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .login-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 168, 135, 0.1);
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 1rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Manrope', sans-serif;
-        }
-
-        .login-btn:hover {
-            background: var(--primary-light);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 104, 84, 0.3);
-        }
-
-        .login-error {
-            color: var(--danger);
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-            text-align: center;
-            display: none;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: none;
-        }
-
-        .container.authenticated {
-            display: block;
-        }
-
-        .header {
-            background: white;
-            border-radius: 24px;
-            padding: 2.5rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--card-shadow);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-            opacity: 0.1;
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
-        }
-
-        .subtitle {
-            font-size: 1.1rem;
-            color: var(--text-light);
-            font-weight: 500;
-        }
-
-        .period-selector {
-            display: flex;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .period-btn {
-            padding: 0.75rem 1.5rem;
-            background: var(--bg-light);
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            font-family: 'Manrope', sans-serif;
-        }
-
-        .period-btn:hover {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .period-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(10, 37, 64, 0.3);
-        }
-
-        .two-col-metrics {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        @media (max-width: 768px) {
-            .two-col-metrics {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .metric-card {
-            background: white;
-            border-radius: 16px;
-            padding: 1.75rem;
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--card-shadow-hover);
-        }
-
-        .metric-label {
-            font-size: 0.875rem;
-            color: var(--text-light);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .metric-change {
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .metric-change.positive {
-            color: var(--success);
-        }
-
-        .metric-change.negative {
-            color: var(--danger);
-        }
-
-        .chart-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: var(--card-shadow);
-            margin-bottom: 2rem;
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .chart-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .chart-subtitle {
-            font-size: 0.875rem;
-            color: var(--text-light);
-            margin-top: 0.25rem;
-        }
-
-        .table-card {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: var(--card-shadow);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .data-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        .data-table thead th {
-            background: var(--primary);
-            color: white;
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .data-table thead th:first-child {
-            border-radius: 12px 0 0 0;
-        }
-
-        .data-table thead th:last-child {
-            border-radius: 0 12px 0 0;
-        }
-
-        .data-table tbody tr {
-            transition: all 0.2s ease;
-        }
-
-        .data-table tbody tr:hover {
-            background: var(--bg-light);
-        }
-
-        .data-table tbody td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.95rem;
-        }
-
-        .data-table tbody tr:last-child td:first-child {
-            border-radius: 0 0 0 12px;
-        }
-
-        .data-table tbody tr:last-child td:last-child {
-            border-radius: 0 0 12px 0;
-        }
-
-        .obra-name {
-            font-weight: 700;
-            color: var(--primary);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .numeric-cell {
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-        }
-
-        .highlighted-col {
-            background-color: var(--accent-light) !important;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge.success {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-        }
-
-        .badge.warning {
-            background: rgba(245, 158, 11, 0.1);
-            color: var(--warning);
-        }
-
-        .badge.danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        .footer-note {
-            background: white;
-            border-radius: 16px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            box-shadow: var(--card-shadow);
-            border-left: 4px solid var(--accent);
-        }
-
-        .footer-note p {
-            color: var(--text-light);
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
-
-        .legend-box {
-            background: var(--bg-light);
-            border-radius: 12px;
-            padding: 1.25rem;
-            margin-top: 1.5rem;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: start;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .legend-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .legend-icon {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .legend-text {
-            font-size: 0.875rem;
-            color: var(--text-dark);
-            line-height: 1.5;
-        }
-
-        .legend-title {
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .animated {
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 3rem;
-            color: white;
-            font-size: 1.25rem;
-        }
-
-        .certif-grid {
-            display: grid;
-            grid-template-columns: 1.7fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        @media (max-width: 1024px) {
-            .certif-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .change-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.875rem;
-            font-weight: 700;
-        }
-    </style>
-</head>
-<body>
-    <!-- Login Screen -->
-    <div id="login-screen">
-        <div class="login-box">
-            <h2 class="login-title">Informe Mensual de Obras</h2>
-            <p class="login-subtitle">Ingrese la contraseña para acceder</p>
-            <form id="login-form">
-                <input 
-                    type="password" 
-                    id="password-input" 
-                    class="login-input" 
-                    placeholder="Contraseña"
-                    autocomplete="off"
-                >
-                <button type="submit" class="login-btn">Ingresar</button>
-                <p class="login-error" id="login-error">Contraseña incorrecta. Intente nuevamente.</p>
-            </form>
-        </div>
-    </div>
-
-    <div class="container" id="main-content">
-        <div class="header animated">
-            <div class="header-content">
-                <h1>Informe Mensual de Obras</h1>
-                <p class="subtitle">Dashboard de rendimiento y certificaciones</p>
-                
-                <div class="period-selector">
-                    <button class="period-btn active" data-period="2026-04">Abril 2026 (Actual)</button>
-                    <button class="period-btn" data-period="2026-03">Marzo 2026</button>
-                </div>
+cat >> /home/claude/informe_final.html << 'HTMLEOF'
             </div>
         </div>
 
@@ -623,9 +110,9 @@
 
         function getStatusBadge(desvio) {
             if (desvio === null || desvio === undefined) return '';
-            if (desvio > 0.05) return '<span class="badge success">Superado</span>';
-            if (desvio < -0.05) return '<span class="badge danger">Bajo Meta</span>';
-            return '<span class="badge warning">En Meta</span>';
+            if (desvio > 0.05) return '<span class="badge success">Desempeño Superior</span>';
+            if (desvio < -0.05) return '<span class="badge danger">Déficit de Avance</span>';
+            return '<span class="badge warning">Conforme al Plan</span>';
         }
 
         function calcularPromedio(valores) {
@@ -648,6 +135,17 @@
             const colorClass = isPositive ? 'positive' : 'negative';
             
             return `<span class="change-indicator ${colorClass}">${arrow} ${absChange.toFixed(1)}%</span>`;
+        }
+
+        function getPerformanceStatus(value, type) {
+            if (type === 'martella') {
+                if (value > 1) return 'Sobre especializado';
+                if (value < 0.95) return 'Sub especializado';
+                return 'Óptimo';
+            } else { // therock
+                if (value > 1) return 'Rendimiento superior';
+                return 'Bajo rendimiento';
+            }
         }
 
         function renderDashboard(period) {
@@ -673,6 +171,8 @@
             let therockChange = '';
             let certifRealChange = '';
             let certifPrevistoChange = '';
+            let martellaStatus = '';
+            let therockStatus = '';
 
             if (period === '2026-04') {
                 const dataPrev = dataStore['2026-03'];
@@ -691,6 +191,9 @@
                 therockChange = getChangeIndicator(avgTheRock, avgTheRockPrev);
                 certifRealChange = getChangeIndicator(totalCertifReal, totalCertifRealPrev);
                 certifPrevistoChange = getChangeIndicator(totalCertifPrevisto, totalCertifPrevistoPrev);
+                
+                martellaStatus = getPerformanceStatus(avgMartella, 'martella');
+                therockStatus = getPerformanceStatus(avgTheRock, 'therock');
             }
 
             // Calcular cambios por obra
@@ -716,21 +219,23 @@
             container.innerHTML = `
                 <div class="two-col-metrics">
                     <div class="metric-card">
-                        <div class="metric-label">Martella IDX Promedio</div>
-                        <div class="metric-value">${formatNumber(avgMartella)}</div>
-                        <div class="metric-change">
-                            ${martellaChange}
-                            ${avgMartella > 1 ? '↑ Sobre especializado' : avgMartella < 0.95 ? '↓ Sub especializado' : '✓ Óptimo'}
+                        <div class="metric-label">Martella IDX Promedio - Todas las Obras</div>
+                        <div class="metric-header">
+                            <div class="metric-value">${formatNumber(avgMartella)}</div>
+                            ${martellaChange ? `<div>${martellaChange}</div>` : ''}
                         </div>
+                        ${martellaChange ? '<div class="metric-change" style="color: var(--text-light);">con respecto al período anterior</div>' : ''}
+                        ${martellaStatus ? `<div class="metric-status">${martellaStatus}</div>` : ''}
                     </div>
 
                     <div class="metric-card">
-                        <div class="metric-label">The Rock IDX Promedio</div>
-                        <div class="metric-value">${formatNumber(avgTheRock)}</div>
-                        <div class="metric-change">
-                            ${therockChange}
-                            ${avgTheRock > 1 ? '↑ Rendimiento superior' : '↓ Bajo rendimiento'}
+                        <div class="metric-label">The Rock IDX Promedio - Todas las Obras</div>
+                        <div class="metric-header">
+                            <div class="metric-value">${formatNumber(avgTheRock)}</div>
+                            ${therockChange ? `<div>${therockChange}</div>` : ''}
                         </div>
+                        ${therockChange ? '<div class="metric-change" style="color: var(--text-light);">con respecto al período anterior</div>' : ''}
+                        ${therockStatus ? `<div class="metric-status">${therockStatus}</div>` : ''}
                     </div>
                 </div>
 
@@ -739,9 +244,12 @@
                         <div>
                             <h3 class="chart-title">Índices de Rendimiento por Obra</h3>
                             <p class="chart-subtitle">${data.month}</p>
+                            ${period === '2026-04' ? '<p class="chart-legend-note">Indicadores sobre barras: variación vs. período anterior</p>' : ''}
                         </div>
                     </div>
-                    <canvas id="idxChart" style="max-height: 350px;"></canvas>
+                    <div style="position: relative; height: 420px;">
+                        <canvas id="idxChart"></canvas>
+                    </div>
                     
                     <div class="legend-box">
                         <div class="legend-item">
@@ -802,19 +310,19 @@
                 <div class="two-col-metrics">
                     <div class="metric-card">
                         <div class="metric-label">Total Certificado</div>
-                        <div class="metric-value" style="font-size: 1.75rem;">${formatCurrency(totalCertifReal)}</div>
+                        <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalCertifReal)}</div>
                         <div class="metric-change">
                             ${certifRealChange}
-                            Certificación real del período
+                            ${certifRealChange ? 'vs. certificado real período anterior' : 'Certificación real del período'}
                         </div>
                     </div>
 
                     <div class="metric-card">
                         <div class="metric-label">Total Certificado Previsto</div>
-                        <div class="metric-value" style="font-size: 1.75rem;">${formatCurrency(totalCertifPrevisto)}</div>
+                        <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalCertifPrevisto)}</div>
                         <div class="metric-change">
                             ${certifPrevistoChange}
-                            Certificación prevista del período
+                            ${certifPrevistoChange ? 'vs. certificado previsto período anterior' : 'Certificación prevista del período'}
                         </div>
                     </div>
                 </div>
@@ -864,7 +372,9 @@
                                 <p class="chart-subtitle">Por obra - ${data.month}</p>
                             </div>
                         </div>
-                        <canvas id="certifChart"></canvas>
+                        <div style="position: relative; height: 380px;">
+                            <canvas id="certifChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -917,8 +427,12 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 2.5,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 40
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: false
@@ -963,6 +477,7 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            max: 2,
                             grid: {
                                 color: 'rgba(0, 0, 0, 0.05)'
                             },
@@ -970,7 +485,8 @@
                                 font: {
                                     family: 'JetBrains Mono',
                                     size: 11
-                                }
+                                },
+                                stepSize: 0.2
                             }
                         },
                         x: {
@@ -999,16 +515,14 @@
                                     ctx.font = 'bold 11px JetBrains Mono';
                                     ctx.textAlign = 'center';
                                     
-                                    // Detectar si es positivo o negativo del HTML
                                     const isPositive = cambio.includes('positive');
                                     ctx.fillStyle = isPositive ? '#10b981' : '#ef4444';
                                     
-                                    // Extraer el texto limpio
                                     const tempDiv = document.createElement('div');
                                     tempDiv.innerHTML = cambio;
                                     const text = tempDiv.textContent;
                                     
-                                    ctx.fillText(text, bar.x, bar.y - 10);
+                                    ctx.fillText(text, bar.x, bar.y - 18);
                                     ctx.restore();
                                 }
                             });
@@ -1025,7 +539,6 @@
                 certifChart.destroy();
             }
 
-            // Filtrar solo obras con certificación
             const obrasFiltradas = data.certif.obras.filter((_, i) => data.certif.certifReal[i] > 0);
             const valoresFiltrados = data.certif.certifReal.filter(v => v > 0);
             const total = valoresFiltrados.reduce((a, b) => a + b, 0);
@@ -1052,8 +565,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 1.1,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             display: false
@@ -1083,9 +595,14 @@
                         },
                         datalabels: {
                             formatter: function(value, context) {
-                                const percentage = ((value / total) * 100).toFixed(1);
+                                const percentage = ((value / total) * 100);
                                 const label = context.chart.data.labels[context.dataIndex];
-                                return `${percentage}%\n${label}`;
+                                
+                                // Mostrar fuera si el porcentaje es muy pequeño
+                                if (percentage < 10) {
+                                    return '';
+                                }
+                                return `${percentage.toFixed(1)}%\n${label}`;
                             },
                             color: '#ffffff',
                             font: {
@@ -1093,10 +610,45 @@
                                 size: 11,
                                 family: 'JetBrains Mono'
                             },
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            anchor: 'center',
+                            align: 'center'
                         }
                     }
-                }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const dataset = chart.data.datasets[0];
+                        const meta = chart.getDatasetMeta(0);
+                        
+                        meta.data.forEach((arc, index) => {
+                            const value = dataset.data[index];
+                            const percentage = ((value / total) * 100);
+                            
+                            // Solo mostrar fuera si es menor a 10%
+                            if (percentage < 10) {
+                                const label = chart.data.labels[index];
+                                const angle = (arc.startAngle + arc.endAngle) / 2;
+                                const radius = arc.outerRadius + 30;
+                                
+                                const x = arc.x + Math.cos(angle) * radius;
+                                const y = arc.y + Math.sin(angle) * radius;
+                                
+                                ctx.save();
+                                ctx.font = 'bold 11px JetBrains Mono';
+                                ctx.fillStyle = '#1e293b';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                
+                                ctx.fillText(`${percentage.toFixed(1)}%`, x, y - 8);
+                                ctx.fillText(label, x, y + 8);
+                                
+                                ctx.restore();
+                            }
+                        });
+                    }
+                }]
             });
         }
 
@@ -1123,5 +675,14 @@
             });
         });
     </script>
+</body>
+</html>
+HTMLEOF
+
+echo "HTML completo creado exitosamente"
+Salida
+
+HTML completo creado exitosamente
+
 </body>
 </html>
