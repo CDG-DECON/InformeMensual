@@ -525,17 +525,6 @@
     </div>
 
     <script>
-            </div>
-        </div>
-
-        <div class="loading">Cargando datos...</div>
-
-        <div id="dashboard-content" class="animated">
-            <!-- Dashboard content will be injected here -->
-        </div>
-    </div>
-
-    <script>
         // Registrar el plugin de datalabels
         Chart.register(ChartDataLabels);
 
@@ -547,22 +536,15 @@
             const password = document.getElementById('password-input').value;
             const errorMsg = document.getElementById('login-error');
             
-            if (true) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-content').classList.add('authenticated');
-
-    try {
-        renderDashboard(currentPeriod);
-    } catch (error) {
-        console.error(error);
-        alert("ERROR: " + error.message);
-    }
-
-} else {
-    errorMsg.style.display = 'block';
-    document.getElementById('password-input').value = '';
-    document.getElementById('password-input').focus();
-}
+            if (password === CORRECT_PASSWORD) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-content').classList.add('authenticated');
+                renderDashboard(currentPeriod);
+            } else {
+                errorMsg.style.display = 'block';
+                document.getElementById('password-input').value = '';
+                document.getElementById('password-input').focus();
+            }
         });
 
         // Datos completos del informe
@@ -641,9 +623,9 @@
 
         function getStatusBadge(desvio) {
             if (desvio === null || desvio === undefined) return '';
-            if (desvio > 0.05) return '<span class="badge success">Desempeño Superior</span>';
-            if (desvio < -0.05) return '<span class="badge danger">Déficit de Avance</span>';
-            return '<span class="badge warning">Conforme al Plan</span>';
+            if (desvio > 0.05) return '<span class="badge success">Superado</span>';
+            if (desvio < -0.05) return '<span class="badge danger">Bajo Meta</span>';
+            return '<span class="badge warning">En Meta</span>';
         }
 
         function calcularPromedio(valores) {
@@ -666,17 +648,6 @@
             const colorClass = isPositive ? 'positive' : 'negative';
             
             return `<span class="change-indicator ${colorClass}">${arrow} ${absChange.toFixed(1)}%</span>`;
-        }
-
-        function getPerformanceStatus(value, type) {
-            if (type === 'martella') {
-                if (value > 1) return 'Sobre especializado';
-                if (value < 0.95) return 'Sub especializado';
-                return 'Óptimo';
-            } else { // therock
-                if (value > 1) return 'Rendimiento superior';
-                return 'Bajo rendimiento';
-            }
         }
 
         function renderDashboard(period) {
@@ -702,8 +673,6 @@
             let therockChange = '';
             let certifRealChange = '';
             let certifPrevistoChange = '';
-            let martellaStatus = '';
-            let therockStatus = '';
 
             if (period === '2026-04') {
                 const dataPrev = dataStore['2026-03'];
@@ -722,9 +691,6 @@
                 therockChange = getChangeIndicator(avgTheRock, avgTheRockPrev);
                 certifRealChange = getChangeIndicator(totalCertifReal, totalCertifRealPrev);
                 certifPrevistoChange = getChangeIndicator(totalCertifPrevisto, totalCertifPrevistoPrev);
-                
-                martellaStatus = getPerformanceStatus(avgMartella, 'martella');
-                therockStatus = getPerformanceStatus(avgTheRock, 'therock');
             }
 
             // Calcular cambios por obra
@@ -750,23 +716,21 @@
             container.innerHTML = `
                 <div class="two-col-metrics">
                     <div class="metric-card">
-                        <div class="metric-label">Martella IDX Promedio - Todas las Obras</div>
-                        <div class="metric-header">
-                            <div class="metric-value">${formatNumber(avgMartella)}</div>
-                            ${martellaChange ? `<div>${martellaChange}</div>` : ''}
+                        <div class="metric-label">Martella IDX Promedio</div>
+                        <div class="metric-value">${formatNumber(avgMartella)}</div>
+                        <div class="metric-change">
+                            ${martellaChange}
+                            ${avgMartella > 1 ? '↑ Sobre especializado' : avgMartella < 0.95 ? '↓ Sub especializado' : '✓ Óptimo'}
                         </div>
-                        ${martellaChange ? '<div class="metric-change" style="color: var(--text-light);">con respecto al período anterior</div>' : ''}
-                        ${martellaStatus ? `<div class="metric-status">${martellaStatus}</div>` : ''}
                     </div>
 
                     <div class="metric-card">
-                        <div class="metric-label">The Rock IDX Promedio - Todas las Obras</div>
-                        <div class="metric-header">
-                            <div class="metric-value">${formatNumber(avgTheRock)}</div>
-                            ${therockChange ? `<div>${therockChange}</div>` : ''}
+                        <div class="metric-label">The Rock IDX Promedio</div>
+                        <div class="metric-value">${formatNumber(avgTheRock)}</div>
+                        <div class="metric-change">
+                            ${therockChange}
+                            ${avgTheRock > 1 ? '↑ Rendimiento superior' : '↓ Bajo rendimiento'}
                         </div>
-                        ${therockChange ? '<div class="metric-change" style="color: var(--text-light);">con respecto al período anterior</div>' : ''}
-                        ${therockStatus ? `<div class="metric-status">${therockStatus}</div>` : ''}
                     </div>
                 </div>
 
@@ -775,12 +739,9 @@
                         <div>
                             <h3 class="chart-title">Índices de Rendimiento por Obra</h3>
                             <p class="chart-subtitle">${data.month}</p>
-                            ${period === '2026-04' ? '<p class="chart-legend-note">Indicadores sobre barras: variación vs. período anterior</p>' : ''}
                         </div>
                     </div>
-                    <div style="position: relative; height: 420px;">
-                        <canvas id="idxChart"></canvas>
-                    </div>
+                    <canvas id="idxChart" style="max-height: 350px;"></canvas>
                     
                     <div class="legend-box">
                         <div class="legend-item">
@@ -841,19 +802,19 @@
                 <div class="two-col-metrics">
                     <div class="metric-card">
                         <div class="metric-label">Total Certificado</div>
-                        <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalCertifReal)}</div>
+                        <div class="metric-value" style="font-size: 1.75rem;">${formatCurrency(totalCertifReal)}</div>
                         <div class="metric-change">
                             ${certifRealChange}
-                            ${certifRealChange ? 'vs. certificado real período anterior' : 'Certificación real del período'}
+                            Certificación real del período
                         </div>
                     </div>
 
                     <div class="metric-card">
                         <div class="metric-label">Total Certificado Previsto</div>
-                        <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalCertifPrevisto)}</div>
+                        <div class="metric-value" style="font-size: 1.75rem;">${formatCurrency(totalCertifPrevisto)}</div>
                         <div class="metric-change">
                             ${certifPrevistoChange}
-                            ${certifPrevistoChange ? 'vs. certificado previsto período anterior' : 'Certificación prevista del período'}
+                            Certificación prevista del período
                         </div>
                     </div>
                 </div>
@@ -903,9 +864,7 @@
                                 <p class="chart-subtitle">Por obra - ${data.month}</p>
                             </div>
                         </div>
-                        <div style="position: relative; height: 380px;">
-                            <canvas id="certifChart"></canvas>
-                        </div>
+                        <canvas id="certifChart"></canvas>
                     </div>
                 </div>
 
@@ -958,12 +917,8 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    layout: {
-                        padding: {
-                            top: 40
-                        }
-                    },
+                    maintainAspectRatio: true,
+                    aspectRatio: 2.5,
                     plugins: {
                         legend: {
                             display: false
@@ -1008,7 +963,6 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 2,
                             grid: {
                                 color: 'rgba(0, 0, 0, 0.05)'
                             },
@@ -1016,8 +970,7 @@
                                 font: {
                                     family: 'JetBrains Mono',
                                     size: 11
-                                },
-                                stepSize: 0.2
+                                }
                             }
                         },
                         x: {
@@ -1046,14 +999,16 @@
                                     ctx.font = 'bold 11px JetBrains Mono';
                                     ctx.textAlign = 'center';
                                     
+                                    // Detectar si es positivo o negativo del HTML
                                     const isPositive = cambio.includes('positive');
                                     ctx.fillStyle = isPositive ? '#10b981' : '#ef4444';
                                     
+                                    // Extraer el texto limpio
                                     const tempDiv = document.createElement('div');
                                     tempDiv.innerHTML = cambio;
                                     const text = tempDiv.textContent;
                                     
-                                    ctx.fillText(text, bar.x, bar.y - 18);
+                                    ctx.fillText(text, bar.x, bar.y - 10);
                                     ctx.restore();
                                 }
                             });
@@ -1070,6 +1025,7 @@
                 certifChart.destroy();
             }
 
+            // Filtrar solo obras con certificación
             const obrasFiltradas = data.certif.obras.filter((_, i) => data.certif.certifReal[i] > 0);
             const valoresFiltrados = data.certif.certifReal.filter(v => v > 0);
             const total = valoresFiltrados.reduce((a, b) => a + b, 0);
@@ -1096,7 +1052,8 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: true,
+                    aspectRatio: 1.1,
                     plugins: {
                         legend: {
                             display: false
@@ -1126,14 +1083,9 @@
                         },
                         datalabels: {
                             formatter: function(value, context) {
-                                const percentage = ((value / total) * 100);
+                                const percentage = ((value / total) * 100).toFixed(1);
                                 const label = context.chart.data.labels[context.dataIndex];
-                                
-                                // Mostrar fuera si el porcentaje es muy pequeño
-                                if (percentage < 10) {
-                                    return '';
-                                }
-                                return `${percentage.toFixed(1)}%\n${label}`;
+                                return `${percentage}%\n${label}`;
                             },
                             color: '#ffffff',
                             font: {
@@ -1141,45 +1093,10 @@
                                 size: 11,
                                 family: 'JetBrains Mono'
                             },
-                            textAlign: 'center',
-                            anchor: 'center',
-                            align: 'center'
+                            textAlign: 'center'
                         }
                     }
-                },
-                plugins: [{
-                    afterDatasetsDraw: function(chart) {
-                        const ctx = chart.ctx;
-                        const dataset = chart.data.datasets[0];
-                        const meta = chart.getDatasetMeta(0);
-                        
-                        meta.data.forEach((arc, index) => {
-                            const value = dataset.data[index];
-                            const percentage = ((value / total) * 100);
-                            
-                            // Solo mostrar fuera si es menor a 10%
-                            if (percentage < 10) {
-                                const label = chart.data.labels[index];
-                                const angle = (arc.startAngle + arc.endAngle) / 2;
-                                const radius = arc.outerRadius + 30;
-                                
-                                const x = arc.x + Math.cos(angle) * radius;
-                                const y = arc.y + Math.sin(angle) * radius;
-                                
-                                ctx.save();
-                                ctx.font = 'bold 11px JetBrains Mono';
-                                ctx.fillStyle = '#1e293b';
-                                ctx.textAlign = 'center';
-                                ctx.textBaseline = 'middle';
-                                
-                                ctx.fillText(`${percentage.toFixed(1)}%`, x, y - 8);
-                                ctx.fillText(label, x, y + 8);
-                                
-                                ctx.restore();
-                            }
-                        });
-                    }
-                }]
+                }
             });
         }
 
@@ -1208,3 +1125,4 @@
     </script>
 </body>
 </html>
+
