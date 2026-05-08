@@ -548,14 +548,21 @@
             const errorMsg = document.getElementById('login-error');
             
             if (password === CORRECT_PASSWORD) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-content').classList.add('authenticated');
-                renderDashboard(currentPeriod);
-            } else {
-                errorMsg.style.display = 'block';
-                document.getElementById('password-input').value = '';
-                document.getElementById('password-input').focus();
-            }
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('main-content').classList.add('authenticated');
+
+    try {
+        renderDashboard(currentPeriod);
+    } catch (error) {
+        console.error(error);
+        alert("ERROR: " + error.message);
+    }
+
+} else {
+    errorMsg.style.display = 'block';
+    document.getElementById('password-input').value = '';
+    document.getElementById('password-input').focus();
+}
         });
 
         // Datos completos del informe
