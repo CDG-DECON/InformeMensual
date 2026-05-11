@@ -35,11 +35,10 @@
             font-family: 'Manrope', sans-serif;
             background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
             min-height: 100vh;
-            padding: 2rem;
+            padding: 1.5rem 1rem;
             color: var(--text-dark);
         }
 
-        /* Login Screen */
         #login-screen {
             position: fixed;
             top: 0;
@@ -60,6 +59,16 @@
             box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
             max-width: 450px;
             width: 90%;
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo img {
+            max-width: 250px;
+            height: auto;
         }
 
         .login-title {
@@ -123,7 +132,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             display: none;
         }
@@ -135,11 +144,14 @@
         .header {
             background: white;
             border-radius: 24px;
-            padding: 2.5rem;
+            padding: 2rem;
             margin-bottom: 2rem;
             box-shadow: var(--card-shadow);
             position: relative;
             overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .header::before {
@@ -156,10 +168,22 @@
         .header-content {
             position: relative;
             z-index: 1;
+            flex: 1;
+        }
+
+        .header-logo {
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .header-logo img {
+            max-width: 280px;
+            height: auto;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.25rem;
             font-weight: 800;
             color: var(--primary);
             margin-bottom: 0.5rem;
@@ -167,7 +191,7 @@
         }
 
         .subtitle {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: var(--text-light);
             font-weight: 500;
         }
@@ -216,6 +240,15 @@
             .two-col-metrics {
                 grid-template-columns: 1fr;
             }
+            
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .header-logo {
+                margin-top: 1.5rem;
+            }
         }
 
         .metric-card {
@@ -232,16 +265,24 @@
         }
 
         .metric-label {
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             color: var(--text-light);
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
         }
 
         .metric-value {
-            font-size: 2rem;
+            font-size: 2.25rem;
             font-weight: 800;
             color: var(--primary);
             font-family: 'JetBrains Mono', monospace;
@@ -262,6 +303,13 @@
 
         .metric-change.negative {
             color: var(--danger);
+        }
+
+        .metric-status {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            color: var(--text-light);
         }
 
         .chart-card {
@@ -291,6 +339,13 @@
             margin-top: 0.25rem;
         }
 
+        .chart-legend-note {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-style: italic;
+            margin-top: 0.5rem;
+        }
+
         .table-card {
             background: white;
             border-radius: 20px;
@@ -310,7 +365,7 @@
             background: var(--primary);
             color: white;
             padding: 1rem;
-            text-align: left;
+            text-align: center;
             font-weight: 600;
             font-size: 0.875rem;
             text-transform: uppercase;
@@ -319,6 +374,7 @@
 
         .data-table thead th:first-child {
             border-radius: 12px 0 0 0;
+            text-align: left;
         }
 
         .data-table thead th:last-child {
@@ -337,6 +393,11 @@
             padding: 1rem;
             border-bottom: 1px solid var(--border);
             font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .data-table tbody td:first-child {
+            text-align: left;
         }
 
         .data-table tbody tr:last-child td:first-child {
@@ -364,7 +425,7 @@
 
         .badge {
             display: inline-block;
-            padding: 0.25rem 0.75rem;
+            padding: 0.35rem 0.85rem;
             border-radius: 999px;
             font-size: 0.75rem;
             font-weight: 700;
@@ -373,17 +434,17 @@
         }
 
         .badge.success {
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.15);
             color: var(--success);
         }
 
         .badge.warning {
-            background: rgba(245, 158, 11, 0.1);
+            background: rgba(245, 158, 11, 0.15);
             color: var(--warning);
         }
 
         .badge.danger {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.15);
             color: var(--danger);
         }
 
@@ -464,12 +525,12 @@
 
         .certif-grid {
             display: grid;
-            grid-template-columns: 1.7fr 1fr;
+            grid-template-columns: 1.8fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 1200px) {
             .certif-grid {
                 grid-template-columns: 1fr;
             }
@@ -481,13 +542,24 @@
             gap: 0.25rem;
             font-size: 0.875rem;
             font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .variation-legend {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
     <div id="login-screen">
         <div class="login-box">
+            <div class="login-logo">
+                <img src="data:image/jpeg;base64,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" alt="Decon Logo">
+            </div>
             <h2 class="login-title">Informe Mensual de Obras</h2>
             <p class="login-subtitle">Ingrese la contraseña para acceder</p>
             <form id="login-form">
@@ -508,27 +580,27 @@
         <div class="header animated">
             <div class="header-content">
                 <h1>Informe Mensual de Obras</h1>
-                <p class="subtitle">Dashboard de rendimiento y certificaciones</p>
+                <p class="subtitle">Rendimiento y certificaciones</p>
                 
                 <div class="period-selector">
                     <button class="period-btn active" data-period="2026-04">Abril 2026 (Actual)</button>
                     <button class="period-btn" data-period="2026-03">Marzo 2026</button>
                 </div>
             </div>
+            <div class="header-logo">
+                <img src="data:image/jpeg;base64,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" alt="Decon Logo">
+            </div>
         </div>
 
         <div class="loading">Cargando datos...</div>
 
         <div id="dashboard-content" class="animated">
-            <!-- Dashboard content will be injected here -->
         </div>
     </div>
 
     <script>
-        // Registrar el plugin de datalabels
         Chart.register(ChartDataLabels);
 
-        // Sistema de autenticación
         const CORRECT_PASSWORD = 'DelgadoyGroos';
 
         document.getElementById('login-form').addEventListener('submit', function(e) {
@@ -547,7 +619,6 @@
             }
         });
 
-        // Datos completos del informe
         const dataStore = {
             '2026-04': {
                 month: 'Abril 2026',
@@ -623,9 +694,9 @@
 
         function getStatusBadge(desvio) {
             if (desvio === null || desvio === undefined) return '';
-            if (desvio > 0.05) return '<span class="badge success">Superado</span>';
-            if (desvio < -0.05) return '<span class="badge danger">Bajo Meta</span>';
-            return '<span class="badge warning">En Meta</span>';
+            if (desvio > 0.05) return '<span class="badge success">Desempeño Superior</span>';
+            if (desvio < -0.05) return '<span class="badge danger">Déficit de Avance</span>';
+            return '<span class="badge warning">Conforme al Plan</span>';
         }
 
         function calcularPromedio(valores) {
@@ -650,11 +721,21 @@
             return `<span class="change-indicator ${colorClass}">${arrow} ${absChange.toFixed(1)}%</span>`;
         }
 
+        function getPerformanceStatus(value, type) {
+            if (type === 'martella') {
+                if (value > 1) return 'Sobre especializado';
+                if (value < 0.95) return 'Sub especializado';
+                return 'Óptimo';
+            } else {
+                if (value > 1) return 'Rendimiento superior';
+                return 'Bajo rendimiento';
+            }
+        }
+
         function renderDashboard(period) {
             const data = dataStore[period];
             const container = document.getElementById('dashboard-content');
             
-            // Calcular promedios de obras (promedio de promedios)
             const promediosMartellaObras = data.idxs.obras.map((obra, i) => 
                 calcularPromedioObra(data.idxs.martella.q1[i], data.idxs.martella.q2[i])
             );
@@ -668,11 +749,12 @@
             const totalCertifReal = data.certif.certifReal.reduce((a, b) => a + b, 0);
             const totalCertifPrevisto = data.certif.certifPrevisto.reduce((a, b) => a + b, 0);
 
-            // Calcular comparativas con mes anterior
             let martellaChange = '';
             let therockChange = '';
             let certifRealChange = '';
             let certifPrevistoChange = '';
+            let martellaStatus = '';
+            let therockStatus = '';
 
             if (period === '2026-04') {
                 const dataPrev = dataStore['2026-03'];
@@ -691,9 +773,11 @@
                 therockChange = getChangeIndicator(avgTheRock, avgTheRockPrev);
                 certifRealChange = getChangeIndicator(totalCertifReal, totalCertifRealPrev);
                 certifPrevistoChange = getChangeIndicator(totalCertifPrevisto, totalCertifPrevistoPrev);
+                
+                martellaStatus = getPerformanceStatus(avgMartella, 'martella');
+                therockStatus = getPerformanceStatus(avgTheRock, 'therock');
             }
 
-            // Calcular cambios por obra
             const cambiosPorObra = period === '2026-04' ? data.idxs.obras.map((obra, i) => {
                 const dataPrev = dataStore['2026-03'];
                 const indexPrev = dataPrev.idxs.obras.indexOf(obra);
@@ -716,21 +800,23 @@
             container.innerHTML = `
                 <div class="two-col-metrics">
                     <div class="metric-card">
-                        <div class="metric-label">Martella IDX Promedio</div>
-                        <div class="metric-value">${formatNumber(avgMartella)}</div>
-                        <div class="metric-change">
-                            ${martellaChange}
-                            ${avgMartella > 1 ? '↑ Sobre especializado' : avgMartella < 0.95 ? '↓ Sub especializado' : '✓ Óptimo'}
+                        <div class="metric-label">Martella IDX Promedio - Todas las Obras</div>
+                        <div class="metric-header">
+                            <div class="metric-value">${formatNumber(avgMartella)}</div>
+                            ${martellaChange ? `<div>${martellaChange}</div>` : ''}
                         </div>
+                        ${martellaChange ? '<div class="metric-change" style="color: var(--text-light);">versus período anterior</div>' : ''}
+                        ${martellaStatus ? `<div class="metric-status">${martellaStatus}</div>` : ''}
                     </div>
 
                     <div class="metric-card">
-                        <div class="metric-label">The Rock IDX Promedio</div>
-                        <div class="metric-value">${formatNumber(avgTheRock)}</div>
-                        <div class="metric-change">
-                            ${therockChange}
-                            ${avgTheRock > 1 ? '↑ Rendimiento superior' : '↓ Bajo rendimiento'}
+                        <div class="metric-label">The Rock IDX Promedio - Todas las Obras</div>
+                        <div class="metric-header">
+                            <div class="metric-value">${formatNumber(avgTheRock)}</div>
+                            ${therockChange ? `<div>${therockChange}</div>` : ''}
                         </div>
+                        ${therockChange ? '<div class="metric-change" style="color: var(--text-light);">versus período anterior</div>' : ''}
+                        ${therockStatus ? `<div class="metric-status">${therockStatus}</div>` : ''}
                     </div>
                 </div>
 
@@ -739,9 +825,12 @@
                         <div>
                             <h3 class="chart-title">Índices de Rendimiento por Obra</h3>
                             <p class="chart-subtitle">${data.month}</p>
+                            ${period === '2026-04' ? '<p class="chart-legend-note">Indicadores sobre barras: variación vs. período anterior</p>' : ''}
                         </div>
                     </div>
-                    <canvas id="idxChart" style="max-height: 350px;"></canvas>
+                    <div style="position: relative; height: 420px;">
+                        <canvas id="idxChart"></canvas>
+                    </div>
                     
                     <div class="legend-box">
                         <div class="legend-item">
@@ -802,19 +891,19 @@
                 <div class="two-col-metrics">
                     <div class="metric-card">
                         <div class="metric-label">Total Certificado</div>
-                        <div class="metric-value" style="font-size: 1.75rem;">${formatCurrency(totalCertifReal)}</div>
+                        <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalCertifReal)}</div>
                         <div class="metric-change">
                             ${certifRealChange}
-                            Certificación real del período
+                            ${certifRealChange ? 'vs. certificado real período anterior' : 'Certificación real del período'}
                         </div>
                     </div>
 
                     <div class="metric-card">
                         <div class="metric-label">Total Certificado Previsto</div>
-                        <div class="metric-value" style="font-size: 1.75rem;">${formatCurrency(totalCertifPrevisto)}</div>
+                        <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalCertifPrevisto)}</div>
                         <div class="metric-change">
                             ${certifPrevistoChange}
-                            Certificación prevista del período
+                            ${certifPrevistoChange ? 'vs. certificado previsto período anterior' : 'Certificación prevista del período'}
                         </div>
                     </div>
                 </div>
@@ -861,10 +950,12 @@
                         <div class="chart-header">
                             <div>
                                 <h3 class="chart-title">Distribución de Certificaciones</h3>
-                                <p class="chart-subtitle">Por obra - ${data.month}</p>
+                                <p class="chart-subtitle">Aporte por obra del total del certificado mensual</p>
                             </div>
                         </div>
-                        <canvas id="certifChart"></canvas>
+                        <div style="position: relative; height: 380px;">
+                            <canvas id="certifChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
@@ -878,7 +969,6 @@
                 ` : ''}
             `;
 
-            // Render charts
             renderIdxChart(data, promediosMartellaObras, promediosTheRockObras, cambiosPorObra);
             renderCertifChart(data);
         }
@@ -917,8 +1007,12 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 2.5,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            top: 40
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: false
@@ -963,6 +1057,7 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            max: 2,
                             grid: {
                                 color: 'rgba(0, 0, 0, 0.05)'
                             },
@@ -970,7 +1065,8 @@
                                 font: {
                                     family: 'JetBrains Mono',
                                     size: 11
-                                }
+                                },
+                                stepSize: 0.2
                             }
                         },
                         x: {
@@ -999,16 +1095,14 @@
                                     ctx.font = 'bold 11px JetBrains Mono';
                                     ctx.textAlign = 'center';
                                     
-                                    // Detectar si es positivo o negativo del HTML
                                     const isPositive = cambio.includes('positive');
                                     ctx.fillStyle = isPositive ? '#10b981' : '#ef4444';
                                     
-                                    // Extraer el texto limpio
                                     const tempDiv = document.createElement('div');
                                     tempDiv.innerHTML = cambio;
                                     const text = tempDiv.textContent;
                                     
-                                    ctx.fillText(text, bar.x, bar.y - 10);
+                                    ctx.fillText(text, bar.x, bar.y - 18);
                                     ctx.restore();
                                 }
                             });
@@ -1025,7 +1119,6 @@
                 certifChart.destroy();
             }
 
-            // Filtrar solo obras con certificación
             const obrasFiltradas = data.certif.obras.filter((_, i) => data.certif.certifReal[i] > 0);
             const valoresFiltrados = data.certif.certifReal.filter(v => v > 0);
             const total = valoresFiltrados.reduce((a, b) => a + b, 0);
@@ -1052,8 +1145,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
-                    aspectRatio: 1.1,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             display: false
@@ -1083,9 +1175,13 @@
                         },
                         datalabels: {
                             formatter: function(value, context) {
-                                const percentage = ((value / total) * 100).toFixed(1);
+                                const percentage = ((value / total) * 100);
                                 const label = context.chart.data.labels[context.dataIndex];
-                                return `${percentage}%\n${label}`;
+                                
+                                if (percentage < 8) {
+                                    return '';
+                                }
+                                return `${percentage.toFixed(1)}%\n${label}`;
                             },
                             color: '#ffffff',
                             font: {
@@ -1093,14 +1189,57 @@
                                 size: 11,
                                 family: 'JetBrains Mono'
                             },
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            anchor: 'center',
+                            align: 'center'
                         }
                     }
-                }
+                },
+                plugins: [{
+                    afterDatasetsDraw: function(chart) {
+                        const ctx = chart.ctx;
+                        const dataset = chart.data.datasets[0];
+                        const meta = chart.getDatasetMeta(0);
+                        
+                        meta.data.forEach((arc, index) => {
+                            const value = dataset.data[index];
+                            const percentage = ((value / total) * 100);
+                            
+                            if (percentage < 8) {
+                                const label = chart.data.labels[index];
+                                const angle = (arc.startAngle + arc.endAngle) / 2;
+                                const radius = arc.outerRadius + 35;
+                                
+                                const x = arc.x + Math.cos(angle) * radius;
+                                const y = arc.y + Math.sin(angle) * radius;
+                                
+                                const lineStartX = arc.x + Math.cos(angle) * (arc.outerRadius + 5);
+                                const lineStartY = arc.y + Math.sin(angle) * (arc.outerRadius + 5);
+                                
+                                ctx.save();
+                                ctx.strokeStyle = '#64748b';
+                                ctx.lineWidth = 1.5;
+                                ctx.beginPath();
+                                ctx.moveTo(lineStartX, lineStartY);
+                                ctx.lineTo(x, y);
+                                ctx.stroke();
+                                
+                                ctx.font = 'bold 10px JetBrains Mono';
+                                ctx.fillStyle = '#1e293b';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'middle';
+                                
+                                ctx.fillText(`${percentage.toFixed(1)}%`, x, y - 8);
+                                ctx.fillText(label, x, y + 8);
+                                
+                                ctx.restore();
+                            }
+                        });
+                    }
+                }]
             });
         }
 
-        // Event listeners para cambio de período
         document.querySelectorAll('.period-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
@@ -1125,4 +1264,3 @@
     </script>
 </body>
 </html>
-
