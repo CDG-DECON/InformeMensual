@@ -305,11 +305,24 @@
             color: var(--danger);
         }
 
+        .metric-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+
         .metric-status {
             font-size: 0.85rem;
-            margin-top: 0.5rem;
             font-weight: 600;
             color: var(--text-light);
+        }
+
+        .metric-vs-text {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            font-weight: 500;
+            text-align: right;
         }
 
         .chart-card {
@@ -545,12 +558,43 @@
             white-space: nowrap;
         }
 
-        .variation-legend {
+        .projection-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 2rem;
             text-align: center;
-            font-size: 0.75rem;
+        }
+
+        .projection-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        .projection-total {
+            background: var(--accent-light);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .projection-total-label {
+            font-size: 0.9rem;
             color: var(--text-light);
-            margin-top: 0.5rem;
-            font-style: italic;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .projection-total-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
         }
     </style>
 </head>
@@ -558,7 +602,7 @@
     <div id="login-screen">
         <div class="login-box">
             <div class="login-logo">
-                <img src="data:image/jpeg;base64,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" alt="Decon Logo">
+                <img src="data:image/jpeg;base64,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" alt="Decon Logo">
             </div>
             <h2 class="login-title">Informe Mensual de Obras</h2>
             <p class="login-subtitle">Ingrese la contraseña para acceder</p>
@@ -583,6 +627,7 @@
                 <p class="subtitle">Rendimiento y certificaciones</p>
                 
                 <div class="period-selector">
+                    <button class="period-btn" data-period="proyeccion">Proy. próx. período</button>
                     <button class="period-btn active" data-period="2026-04">Abril 2026 (Actual)</button>
                     <button class="period-btn" data-period="2026-03">Marzo 2026</button>
                 </div>
@@ -620,6 +665,15 @@
         });
 
         const dataStore = {
+            'proyeccion': {
+                month: 'Proyección Próximo Período',
+                isProjection: true,
+                certifProyectado: {
+                    obras: ['SM', 'ARN', 'PEDR ALB', 'LMB', 'SUP', 'PAMP 2025', 'OH PAMPA', 'DELG'],
+                    certifPrevisto: [115000000, 28000000, 50000000, 35000000, 42000000, 5000000, 12000000, 11000000],
+                    avanceProyectado: [0.55, 0.19, 0.35, 0.15, 0.48, 0.02, 0.50, 0.45]
+                }
+            },
             '2026-04': {
                 month: 'Abril 2026',
                 idxs: {
@@ -732,7 +786,59 @@
             }
         }
 
+        function renderProjection() {
+            const data = dataStore['proyeccion'];
+            const container = document.getElementById('dashboard-content');
+            
+            const totalProyectado = data.certifProyectado.certifPrevisto.reduce((a, b) => a + b, 0);
+            
+            container.innerHTML = `
+                <div class="projection-card">
+                    <h2 class="projection-title">Proyección del Próximo Período</h2>
+                    
+                    <div class="projection-total">
+                        <div class="projection-total-label">Total Certificado Previsto Próximo Mes</div>
+                        <div class="projection-total-value">${formatCurrency(totalProyectado)}</div>
+                    </div>
+
+                    <div class="table-card" style="text-align: left;">
+                        <h3 class="chart-title" style="margin-bottom: 1.5rem;">Detalle por Obra</h3>
+                        <div style="overflow-x: auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Obra</th>
+                                        <th>Certificado Previsto</th>
+                                        <th>% de Avance Proyectado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${data.certifProyectado.obras.map((obra, i) => {
+                                        const certif = data.certifProyectado.certifPrevisto[i];
+                                        const avance = data.certifProyectado.avanceProyectado[i];
+                                        if (certif === 0) return '';
+                                        return `
+                                            <tr>
+                                                <td class="obra-name">${obra}</td>
+                                                <td class="numeric-cell">${formatCurrency(certif)}</td>
+                                                <td class="numeric-cell">${formatPercent(avance)}</td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderDashboard(period) {
+            if (period === 'proyeccion') {
+                renderProjection();
+                return;
+            }
+
             const data = dataStore[period];
             const container = document.getElementById('dashboard-content');
             
@@ -805,8 +911,10 @@
                             <div class="metric-value">${formatNumber(avgMartella)}</div>
                             ${martellaChange ? `<div>${martellaChange}</div>` : ''}
                         </div>
-                        ${martellaChange ? '<div class="metric-change" style="color: var(--text-light);">versus período anterior</div>' : ''}
-                        ${martellaStatus ? `<div class="metric-status">${martellaStatus}</div>` : ''}
+                        <div class="metric-footer">
+                            ${martellaStatus ? `<div class="metric-status">${martellaStatus}</div>` : ''}
+                            ${martellaChange ? '<div class="metric-vs-text">versus período anterior</div>' : ''}
+                        </div>
                     </div>
 
                     <div class="metric-card">
@@ -815,8 +923,10 @@
                             <div class="metric-value">${formatNumber(avgTheRock)}</div>
                             ${therockChange ? `<div>${therockChange}</div>` : ''}
                         </div>
-                        ${therockChange ? '<div class="metric-change" style="color: var(--text-light);">versus período anterior</div>' : ''}
-                        ${therockStatus ? `<div class="metric-status">${therockStatus}</div>` : ''}
+                        <div class="metric-footer">
+                            ${therockStatus ? `<div class="metric-status">${therockStatus}</div>` : ''}
+                            ${therockChange ? '<div class="metric-vs-text">versus período anterior</div>' : ''}
+                        </div>
                     </div>
                 </div>
 
@@ -953,7 +1063,7 @@
                                 <p class="chart-subtitle">Aporte por obra del total del certificado mensual</p>
                             </div>
                         </div>
-                        <div style="position: relative; height: 380px;">
+                        <div style="position: relative; height: 420px; padding-top: 20px;">
                             <canvas id="certifChart"></canvas>
                         </div>
                     </div>
@@ -1208,19 +1318,22 @@
                             if (percentage < 8) {
                                 const label = chart.data.labels[index];
                                 const angle = (arc.startAngle + arc.endAngle) / 2;
-                                const radius = arc.outerRadius + 35;
+                                const radius = arc.outerRadius + 40;
                                 
                                 const x = arc.x + Math.cos(angle) * radius;
                                 const y = arc.y + Math.sin(angle) * radius;
                                 
                                 const lineStartX = arc.x + Math.cos(angle) * (arc.outerRadius + 5);
                                 const lineStartY = arc.y + Math.sin(angle) * (arc.outerRadius + 5);
+                                const lineEndX = arc.x + Math.cos(angle) * (arc.outerRadius + 30);
+                                const lineEndY = arc.y + Math.sin(angle) * (arc.outerRadius + 30);
                                 
                                 ctx.save();
                                 ctx.strokeStyle = '#64748b';
                                 ctx.lineWidth = 1.5;
                                 ctx.beginPath();
                                 ctx.moveTo(lineStartX, lineStartY);
+                                ctx.lineTo(lineEndX, lineEndY);
                                 ctx.lineTo(x, y);
                                 ctx.stroke();
                                 
