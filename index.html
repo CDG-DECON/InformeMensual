@@ -1004,9 +1004,9 @@
                                     const therockQ2Val = data.idxs.therock.q2[i];
                                     const martellaProm = promediosMartellaObras[i];
                                     const therockProm = promediosTheRockObras[i];
-                                    const isSUP = obra === 'SUP';
+                                    const shouldMerge = obra === 'SUP' || obra === 'DELG';
                                     
-                                    if (isSUP) {
+                                    if (shouldMerge) {
                                         return `
                                         <tr>
                                             <td class="obra-name">${obra}</td>
