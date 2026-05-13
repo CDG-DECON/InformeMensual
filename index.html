@@ -705,7 +705,7 @@
                     certifReal: [114084207.62, 25426406.55, 46210155.63, 31550140.71, 39439108, 49249, 10703167, 10198272.11],
                     certifPrevisto: [104669033.65, 27503464.99, 95320293.01, 34274963.32, 0, 0, 0, 0],
                     desvio: [9415173.97, -2077058.44, -49110137.37, -2724822.60, null, null, null, null],
-                    desvioPct: [0.0900, -0.0755, -1.0628, -0.0864, null, null, null, null],
+                    desvioPct: [0.0900, -0.0755, -0.5152, -0.0795, null, null, null, null],
                     adicionales: [null, null, 0, 1368776, 0, 0, 0, 0],
                     isPampUSD: [false, false, false, false, false, true, false, false]
                 }
@@ -729,7 +729,7 @@
                     certifReal: [113822063, 11835598.72, 83681875, 22095922, 16500314, 8691, 9894625],
                     certifPrevisto: [92500133.71, 14502989.84, 82374064.16, 63470495.32, 20313940, 0, 0],
                     desvio: [21321929.29, -2667391.12, 1307810.84, -41374573.32, -3813626, null, null],
-                    desvioPct: [0.2305, -0.1839, 0.0156, -1.8725, -0.2311, null, null],
+                    desvioPct: [0.2305, -0.1839, 0.0156, -0.6519, -0.1877, null, null],
                     adicionales: [2296000, 3023956, 0, 10509273, 0, 0, 0],
                     isPampUSD: [false, false, false, false, false, true, false]
                 }
@@ -1067,6 +1067,7 @@
                                         <th>Certificado Previsto</th>
                                         <th>Desvío $</th>
                                         <th>Desvío %</th>
+                                        <th>ADICIONALES</th>
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
@@ -1074,6 +1075,7 @@
                                     ${data.certif.obras.map((obra, i) => {
                                         if (data.certif.certifReal[i] === 0) return '';
                                         const isUSD = data.certif.isPampUSD[i];
+                                        const adicional = data.certif.adicionales[i];
                                         return `
                                             <tr>
                                                 <td class="obra-name">${obra}</td>
@@ -1084,6 +1086,9 @@
                                                     ${formatCurrency(data.certif.desvio[i], isUSD)}
                                                 </td>
                                                 <td class="numeric-cell">${formatPercent(data.certif.desvioPct[i])}</td>
+                                                <td class="numeric-cell">
+                                                   ${adicional != null ? formatCurrency(adicional, isUSD) : '-'}
+                                                </td>
                                                 <td>${getStatusBadge(data.certif.desvioPct[i])}</td>
                                             </tr>
                                         `;
