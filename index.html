@@ -359,6 +359,14 @@
             margin-top: 0.5rem;
         }
 
+        .chart-note {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-style: italic;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
         .table-card {
             background: white;
             border-radius: 20px;
@@ -434,6 +442,10 @@
 
         .highlighted-col {
             background-color: var(--accent-light) !important;
+        }
+
+        .merged-cell {
+            background-color: var(--bg-light) !important;
         }
 
         .badge {
@@ -669,9 +681,9 @@
                 month: 'Proyección Próximo Período',
                 isProjection: true,
                 certifProyectado: {
-                    obras: ['SM', 'ARN', 'PEDR', 'LMB', 'SUP'],
-                    certifPrevisto: [99181664.22, 24452989.37, 101563495.51, 37033666.23, 24982417],
-                    avanceProyectado: [0.6416, 0.204939, 0.5964, 0.1785, 0.2355]
+                    obras: ['SM', 'ARN', 'PEDR', 'LMB', 'SUP (Etapa 2)', 'DELG', 'SFE'],
+                    certifPrevisto: [99181664.22, 24452989.37, 101563495.51, 37033666.23, 24982417, 28321400, 25422533],
+                    avanceProyectado: [0.6416, 0.204939, 0.5964, 0.1785, 0.2355, 0.100813, 0.042508]
                 }
             },
             '2026-04': {
@@ -679,22 +691,23 @@
                 idxs: {
                     obras: ['SM', 'ARN', 'PEDR', 'LMB', 'SUP', 'DELG'],
                     martella: {
-                        q1: [0.96, 0.99, 1.06, 0.962692, 0.93, 1.05],
-                        q2: [1.01, 1.02, 1.16, 0.948769, 0, 1.03]
+                        q1: [0.94, 0.99, 1.06, 0.962692, 0.95, 0.93],
+                        q2: [0.92, 1.02, 1.03, 0.948769, null, 0.93]
                     },
                     therock: {
-                        q1: [0.98, 1, 1.01, 1.393914, 1.1, 0.4],
-                        q2: [1.03, 0.59, 1.1, 1.248062, 0, 0.6]
+                        q1: [1.09, 1, 1.18, 1.393914, 1.02, 0.12],
+                        q2: [0.65, 0.59, 0.46, 1.248062, null, null]
                     }
                 },
                 certif: {
-                    obras: ['SM', 'ARN', 'PEDR ALB', 'LMB', 'SUP', 'PAMP', 'OH PAMPA', 'DELG'],
-                    avanceAcum: [0.5498, 0.1731, 0.3563, 0.128, null, 0.9737, 0.4498, null],
+                    obras: ['SM', 'ARN', 'PEDR ALB', 'LMB', 'SUP (Etapa 1)', 'PAMP', 'OH PAMPA', 'DELG'],
+                    avanceAcum: [0.5498, 0.1731, 0.3563, 0.128, 0.9891, 0.9737, 0.4498, 0.0267],
                     certifReal: [114084207.62, 25426406.55, 46210155.63, 31550140.71, 39439108, 49249, 10703167, 10198272.11],
                     certifPrevisto: [104669033.65, 27503464.99, 95320293.01, 34274963.32, 0, 0, 0, 0],
                     desvio: [9415173.97, -2077058.44, -49110137.37, -2724822.60, null, null, null, null],
                     desvioPct: [0.0900, -0.0755, -1.0628, -0.0864, null, null, null, null],
-                    adicionales: [null, null, 0, 1368776, 0, 0, 0, 0]
+                    adicionales: [null, null, 0, 1368776, 0, 0, 0, 0],
+                    isPampUSD: [false, false, false, false, false, true, false, false]
                 }
             },
             '2026-03': {
@@ -703,11 +716,11 @@
                     obras: ['SM', 'ARN', 'PEDR', 'LMB', 'SUP'],
                     martella: {
                         q1: [1.07, 1.05, 1.05, 0.974911, 0.963139],
-                        q2: [1.04, 1.03, 1.06, 0.965519, 0]
+                        q2: [1.04, 1.03, 1.06, 0.965519, null]
                     },
                     therock: {
                         q1: [1.14, 0.53, 1.02, 1.280461, 0.403023],
-                        q2: [0.9, 0.62, 1.18, 0.691979, 0]
+                        q2: [0.9, 0.62, 1.18, 0.691979, null]
                     }
                 },
                 certif: {
@@ -717,7 +730,8 @@
                     certifPrevisto: [92500133.71, 14502989.84, 82374064.16, 63470495.32, 20313940, 0, 0],
                     desvio: [21321929.29, -2667391.12, 1307810.84, -41374573.32, -3813626, null, null],
                     desvioPct: [0.2305, -0.1839, 0.0156, -1.8725, -0.2311, null, null],
-                    adicionales: [2296000, 3023956, 0, 10509273, 0, 0, 0]
+                    adicionales: [2296000, 3023956, 0, 10509273, 0, 0, 0],
+                    isPampUSD: [false, false, false, false, false, true, false]
                 }
             }
         };
@@ -726,11 +740,12 @@
         let idxChart = null;
         let certifChart = null;
 
-        function formatCurrency(value) {
+        function formatCurrency(value, isUSD = false) {
             if (value === null || value === undefined) return '-';
+            const currency = isUSD ? 'USD' : 'ARS';
             return new Intl.NumberFormat('es-AR', {
                 style: 'currency',
-                currency: 'ARS',
+                currency: currency,
                 minimumFractionDigits: 0,
                 maximumFractionDigits: 0
             }).format(value);
@@ -760,6 +775,7 @@
         }
 
         function calcularPromedioObra(q1, q2) {
+            if (q2 === null || q2 === undefined) return q1;
             const valores = [q1, q2].filter(v => v > 0);
             return calcularPromedio(valores);
         }
@@ -852,7 +868,11 @@
             const avgMartella = calcularPromedio(promediosMartellaObras);
             const avgTheRock = calcularPromedio(promediosTheRockObras);
             
-            const totalCertifReal = data.certif.certifReal.reduce((a, b) => a + b, 0);
+            // Calcular total excluyendo PAMP
+            const totalCertifReal = data.certif.certifReal.reduce((sum, val, i) => {
+                if (data.certif.obras[i] !== 'PAMP') return sum + val;
+                return sum;
+            }, 0);
             const totalCertifPrevisto = data.certif.certifPrevisto.reduce((a, b) => a + b, 0);
 
             let martellaChange = '';
@@ -872,7 +892,10 @@
                 );
                 const avgMartellaPrev = calcularPromedio(promediosMartellaObrasPrev);
                 const avgTheRockPrev = calcularPromedio(promediosTheRockObrasPrev);
-                const totalCertifRealPrev = dataPrev.certif.certifReal.reduce((a, b) => a + b, 0);
+                const totalCertifRealPrev = dataPrev.certif.certifReal.reduce((sum, val, i) => {
+                    if (dataPrev.certif.obras[i] !== 'PAMP') return sum + val;
+                    return sum;
+                }, 0);
                 const totalCertifPrevistoPrev = dataPrev.certif.certifPrevisto.reduce((a, b) => a + b, 0);
 
                 martellaChange = getChangeIndicator(avgMartella, avgMartellaPrev);
@@ -981,16 +1004,29 @@
                                     const therockQ2Val = data.idxs.therock.q2[i];
                                     const martellaProm = promediosMartellaObras[i];
                                     const therockProm = promediosTheRockObras[i];
+                                    const isSUP = obra === 'SUP';
+                                    
+                                    if (isSUP) {
+                                        return `
+                                        <tr>
+                                            <td class="obra-name">${obra}</td>
+                                            <td class="numeric-cell highlighted-col">${formatNumber(martellaProm)}</td>
+                                            <td colspan="2" class="numeric-cell merged-cell">${formatNumber(data.idxs.martella.q1[i])}</td>
+                                            <td class="numeric-cell highlighted-col">${formatNumber(therockProm)}</td>
+                                            <td colspan="2" class="numeric-cell merged-cell">${formatNumber(data.idxs.therock.q1[i])}</td>
+                                        </tr>
+                                    `;
+                                    }
                                     
                                     return `
                                     <tr>
                                         <td class="obra-name">${obra}</td>
                                         <td class="numeric-cell highlighted-col">${formatNumber(martellaProm)}</td>
                                         <td class="numeric-cell">${formatNumber(data.idxs.martella.q1[i])}</td>
-                                        <td class="numeric-cell">${martellaQ2Val > 0 ? formatNumber(martellaQ2Val) : '-'}</td>
+                                        <td class="numeric-cell">${martellaQ2Val ? formatNumber(martellaQ2Val) : '-'}</td>
                                         <td class="numeric-cell highlighted-col">${formatNumber(therockProm)}</td>
                                         <td class="numeric-cell">${formatNumber(data.idxs.therock.q1[i])}</td>
-                                        <td class="numeric-cell">${therockQ2Val > 0 ? formatNumber(therockQ2Val) : '-'}</td>
+                                        <td class="numeric-cell">${therockQ2Val ? formatNumber(therockQ2Val) : '-'}</td>
                                     </tr>
                                 `}).join('')}
                             </tbody>
@@ -1037,14 +1073,15 @@
                                 <tbody>
                                     ${data.certif.obras.map((obra, i) => {
                                         if (data.certif.certifReal[i] === 0) return '';
+                                        const isUSD = data.certif.isPampUSD[i];
                                         return `
                                             <tr>
                                                 <td class="obra-name">${obra}</td>
                                                 <td class="numeric-cell">${formatPercent(data.certif.avanceAcum[i])}</td>
-                                                <td class="numeric-cell">${formatCurrency(data.certif.certifReal[i])}</td>
-                                                <td class="numeric-cell">${formatCurrency(data.certif.certifPrevisto[i])}</td>
+                                                <td class="numeric-cell">${formatCurrency(data.certif.certifReal[i], isUSD)}</td>
+                                                <td class="numeric-cell">${formatCurrency(data.certif.certifPrevisto[i], isUSD)}</td>
                                                 <td class="numeric-cell" style="color: ${data.certif.desvio[i] > 0 ? 'var(--success)' : 'var(--danger)'}">
-                                                    ${formatCurrency(data.certif.desvio[i])}
+                                                    ${formatCurrency(data.certif.desvio[i], isUSD)}
                                                 </td>
                                                 <td class="numeric-cell">${formatPercent(data.certif.desvioPct[i])}</td>
                                                 <td>${getStatusBadge(data.certif.desvioPct[i])}</td>
@@ -1066,6 +1103,7 @@
                         <div style="position: relative; height: 420px; padding-top: 20px;">
                             <canvas id="certifChart"></canvas>
                         </div>
+                        <p class="chart-note">Nota: Estos valores están referenciados al CAC base propio de cada obra.</p>
                     </div>
                 </div>
 
