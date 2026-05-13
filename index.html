@@ -231,7 +231,7 @@
 
         .two-col-metrics {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
@@ -874,6 +874,9 @@
                 return sum;
             }, 0);
             const totalCertifPrevisto = data.certif.certifPrevisto.reduce((a, b) => a + b, 0);
+            const totalAdicionales = data.certif.adicionales
+                .filter(v => v != null)
+                .reduce((a, b) => a + b, 0);
 
             let martellaChange = '';
             let therockChange = '';
@@ -928,30 +931,52 @@
 
             container.innerHTML = `
                 <div class="two-col-metrics">
-                    <div class="metric-card">
-                        <div class="metric-label">Martella IDX Promedio - Todas las Obras</div>
-                        <div class="metric-header">
-                            <div class="metric-value">${formatNumber(avgMartella)}</div>
-                            ${martellaChange ? `<div>${martellaChange}</div>` : ''}
-                        </div>
-                        <div class="metric-footer">
-                            ${martellaStatus ? `<div class="metric-status">${martellaStatus}</div>` : ''}
-                            ${martellaChange ? '<div class="metric-vs-text">versus período anterior</div>' : ''}
-                        </div>
-                    </div>
+    <div class="metric-card">
+        <div class="metric-label">Total Certificado obra básica</div>
 
-                    <div class="metric-card">
-                        <div class="metric-label">The Rock IDX Promedio - Todas las Obras</div>
-                        <div class="metric-header">
-                            <div class="metric-value">${formatNumber(avgTheRock)}</div>
-                            ${therockChange ? `<div>${therockChange}</div>` : ''}
-                        </div>
-                        <div class="metric-footer">
-                            ${therockStatus ? `<div class="metric-status">${therockStatus}</div>` : ''}
-                            ${therockChange ? '<div class="metric-vs-text">versus período anterior</div>' : ''}
-                        </div>
-                    </div>
-                </div>
+        <div class="metric-value" style="font-size: 1.85rem;">
+            ${formatCurrency(totalCertifReal)}
+        </div>
+
+        <div class="metric-change">
+            ${certifRealChange}
+            ${certifRealChange 
+                ? 'vs. certificado real período anterior' 
+                : 'Certificación real del período'}
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-label">
+            Total Certificado obra básica Previsto
+        </div>
+
+        <div class="metric-value" style="font-size: 1.85rem;">
+            ${formatCurrency(totalCertifPrevisto)}
+        </div>
+
+        <div class="metric-change">
+            ${certifPrevistoChange}
+            ${certifPrevistoChange
+                ? 'vs. certificado previsto período anterior'
+                : 'Certificación prevista del período'}
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-label">
+            Total Adicionales
+        </div>
+
+        <div class="metric-value" style="font-size: 1.85rem;">
+            ${formatCurrency(totalAdicionales)}
+        </div>
+
+        <div class="metric-change">
+            Adicionales certificados del período
+        </div>
+    </div>
+</div>
 
                 <div class="chart-card">
                     <div class="chart-header">
