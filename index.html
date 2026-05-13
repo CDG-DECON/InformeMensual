@@ -956,21 +956,6 @@
                     </div>
                 </div>
 
-    <div class="metric-card">
-        <div class="metric-label">
-            Total Adicionales
-        </div>
-
-        <div class="metric-value" style="font-size: 1.85rem;">
-            ${formatCurrency(totalAdicionales)}
-        </div>
-
-        <div class="metric-change">
-            Adicionales certificados del período
-        </div>
-    </div>
-</div>
-
                 <div class="chart-card">
                     <div class="chart-header">
                         <div>
@@ -1052,7 +1037,7 @@
                     </div>
                 </div>
 
-                <div class="two-col-metrics">
+                <div class="two-col-metrics" style="grid-template-columns: 1fr 1fr 1fr;">
                     <div class="metric-card">
                         <div class="metric-label">Total Certificado obra básica</div>
                         <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalCertifReal)}</div>
@@ -1070,9 +1055,7 @@
                             ${certifPrevistoChange ? 'vs. certificado previsto período anterior' : 'Certificación prevista del período'}
                         </div>
                     </div>
-                </div>
-
-<div class="metric-card">
+                    <div class="metric-card">
         <div class="metric-label">
             Total Adicionales
         </div>
