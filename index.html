@@ -18,6 +18,7 @@
             --danger: #ef4444;
             --bg-dark: #0f172a;
             --bg-light: #f8fafc;
+            --gray-highlight: #e5e7eb;
             --text-dark: #1e293b;
             --text-light: #64748b;
             --border: #e2e8f0;
@@ -331,6 +332,7 @@
             padding: 2rem;
             box-shadow: var(--card-shadow);
             margin-bottom: 2rem;
+            position: relative;
         }
 
         .chart-header {
@@ -367,6 +369,48 @@
             text-align: center;
         }
 
+        .historical-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            display: none;
+            z-index: 100;
+        }
+
+        .historical-overlay.active {
+            display: block;
+        }
+
+        .historical-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 101;
+        }
+
+        .historical-close:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
         .table-card {
             background: white;
             border-radius: 20px;
@@ -374,6 +418,7 @@
             box-shadow: var(--card-shadow);
             overflow: hidden;
             margin-bottom: 2rem;
+            position: relative;
         }
 
         .data-table {
@@ -444,8 +489,33 @@
             background-color: var(--accent-light) !important;
         }
 
+        .gray-highlight-col {
+            background-color: var(--gray-highlight) !important;
+        }
+
         .merged-cell {
             background-color: var(--bg-light) !important;
+        }
+
+        .clickable-coef {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .clickable-coef:hover {
+            background-color: var(--primary) !important;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .coef-hint {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            font-style: italic;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
         }
 
         .badge {
@@ -548,19 +618,6 @@
             font-size: 1.25rem;
         }
 
-        .certif-grid {
-            display: grid;
-            grid-template-columns: 1.8fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        @media (max-width: 1200px) {
-            .certif-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .change-indicator {
             display: inline-flex;
             align-items: center;
@@ -640,7 +697,8 @@
                 
                 <div class="period-selector">
                     <button class="period-btn" data-period="proyeccion">Proy. próx. período</button>
-                    <button class="period-btn active" data-period="2026-04">Abril 2026 (Actual)</button>
+                    <button class="period-btn active" data-period="2026-05">Mayo 2026 (Actual)</button>
+                    <button class="period-btn" data-period="2026-04">Abril 2026</button>
                     <button class="period-btn" data-period="2026-03">Marzo 2026</button>
                 </div>
             </div>
@@ -676,69 +734,1620 @@
             }
         });
 
+        // Datos embebidos del Excel actualizado
         const dataStore = {
-            'proyeccion': {
-                month: 'Proyección Próximo Período',
-                isProjection: true,
-                certifProyectado: {
-                    obras: ['SM', 'ARN', 'PEDR', 'LMB', 'SUP (Etapa 2)', 'DELG', 'SFE'],
-                    certifPrevisto: [99181664.22, 24452989.37, 101563495.51, 37033666.23, 24982417, 28321400, 25422533],
-                    avanceProyectado: [0.6416, 0.204939, 0.5964, 0.1785, 0.2355, 0.100813, 0.042508]
-                }
+            "proyeccion": {
+                        "month": "Proyección Próximo Período",
+                        "projectionLabel": "Jun-26",
+                        "certifProyectado": {
+                                    "obras": [
+                                                "ARN",
+                                                "DELG",
+                                                "LMB",
+                                                "PEDR",
+                                                "SFE",
+                                                "SM",
+                                                "SUP (Etapa 2)"
+                                    ],
+                                    "certifPrevisto": [
+                                                30831726.634855703,
+                                                43183267.0,
+                                                57969854.0,
+                                                132809221.0,
+                                                110807929.0,
+                                                80023331.0,
+                                                40743134.0
+                                    ],
+                                    "avanceProyectado": [
+                                                0.2461,
+                                                0.2327,
+                                                0.21075,
+                                                0.8258,
+                                                0.2277,
+                                                0.6763,
+                                                0.6197
+                                    ]
+                        }
             },
-            '2026-04': {
-                month: 'Abril 2026',
-                idxs: {
-                    obras: ['SM', 'ARN', 'PEDR', 'LMB', 'SUP', 'DELG'],
-                    martella: {
-                        q1: [0.94, 0.99, 1.06, 0.962692, 0.95, 0.93],
-                        q2: [0.92, 1.02, 1.03, 0.948769, null, 0.93]
-                    },
-                    therock: {
-                        q1: [1.09, 1, 1.18, 1.393914, 1.02, 0.12],
-                        q2: [0.65, 0.59, 0.46, 1.248062, null, null]
-                    }
-                },
-                certif: {
-                    obras: ['SM', 'ARN', 'PEDR ALB', 'LMB', 'SUP (Etapa 1)', 'PAMP', 'OH PAMPA', 'DELG'],
-                    avanceAcum: [0.5498, 0.1731, 0.3563, 0.128, 0.9891, 0.9737, 0.4498, 0.0267],
-                    certifReal: [114084207.62, 25426406.55, 46210155.63, 31550140.71, 39439108, 49249, 10703167, 10198272.11],
-                    certifPrevisto: [104669033.65, 27503464.99, 95320293.01, 34274963.32, 0, 0, 0, 0],
-                    desvio: [9415173.97, -2077058.44, -49110137.37, -2724822.60, null, null, null, null],
-                    desvioPct: [0.0900, -0.0755, -0.5152, -0.0795, null, null, null, null],
-                    adicionales: [null, null, 0, 1368776, 0, 0, 0, 0],
-                    isPampUSD: [false, false, false, false, false, true, false, false]
-                }
+            "2026-05": {
+                        "month": "Mayo 2026",
+                        "promPonderado": {
+                                    "martella": 0.996,
+                                    "therock": 0.57
+                        },
+                        "idxs": {
+                                    "obras": [
+                                                "SM",
+                                                "ARN",
+                                                "PEDR",
+                                                "LMB",
+                                                "SUP",
+                                                "DELG"
+                                    ],
+                                    "martella": {
+                                                "q1": [
+                                                            0.9,
+                                                            1.03,
+                                                            1.04,
+                                                            0.98,
+                                                            0.88,
+                                                            0.99
+                                                ],
+                                                "q2": [
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null
+                                                ]
+                                    },
+                                    "therock": {
+                                                "q1": [
+                                                            0.29,
+                                                            0.51,
+                                                            0.72,
+                                                            0.71,
+                                                            null,
+                                                            null
+                                                ],
+                                                "q2": [
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null,
+                                                            null
+                                                ]
+                                    }
+                        },
+                        "certif": {
+                                    "obras": [
+                                                "ARN",
+                                                "DELG",
+                                                "LMB",
+                                                "PEDR",
+                                                "SFE",
+                                                "SM",
+                                                "SUP (Etapa 2)",
+                                                "OH PAMP"
+                                    ],
+                                    "avanceAcum": [
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                    ],
+                                    "certifReal": [
+                                                8962994.0,
+                                                null,
+                                                10632879.0,
+                                                22278114.0,
+                                                null,
+                                                39168682.0,
+                                                null,
+                                                null
+                                    ],
+                                    "certifPrevisto": [
+                                                24452989.37305667,
+                                                28321400.0,
+                                                37033666.225327656,
+                                                101563495.51028842,
+                                                25422533.0,
+                                                99181664.21706645,
+                                                24982417.0,
+                                                null
+                                    ],
+                                    "desvio": [
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                    ],
+                                    "desvioPct": [
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                    ],
+                                    "adicionales": [
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                null,
+                                                2974641.0
+                                    ],
+                                    "isPampUSD": [
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                false
+                                    ]
+                        },
+                        "kpase": {
+                                    "ARN": {
+                                                "pase_licitacion": null,
+                                                "pase_esperado": null,
+                                                "coef_pase": null
+                                    },
+                                    "DELG": {
+                                                "pase_licitacion": null,
+                                                "pase_esperado": null,
+                                                "coef_pase": null
+                                    },
+                                    "LMB": {
+                                                "pase_licitacion": null,
+                                                "pase_esperado": null,
+                                                "coef_pase": null
+                                    },
+                                    "PEDR": {
+                                                "pase_licitacion": null,
+                                                "pase_esperado": null,
+                                                "coef_pase": null
+                                    },
+                                    "SFE": {
+                                                "pase_licitacion": null,
+                                                "pase_esperado": null,
+                                                "coef_pase": null
+                                    },
+                                    "SM": {
+                                                "pase_licitacion": null,
+                                                "pase_esperado": null,
+                                                "coef_pase": null
+                                    },
+                                    "SUP (Etapa 2)": {
+                                                "pase_licitacion": null,
+                                                "pase_esperado": null,
+                                                "coef_pase": null
+                                    },
+                                    "OH PAMP": {
+                                                "pase_licitacion": null,
+                                                "pase_esperado": null,
+                                                "coef_pase": null
+                                    }
+                        }
             },
-            '2026-03': {
-                month: 'Marzo 2026',
-                idxs: {
-                    obras: ['SM', 'ARN', 'PEDR', 'LMB', 'SUP'],
-                    martella: {
-                        q1: [1.07, 1.05, 1.05, 0.974911, 0.963139],
-                        q2: [1.04, 1.03, 1.06, 0.965519, null]
-                    },
-                    therock: {
-                        q1: [1.14, 0.53, 1.02, 1.280461, 0.403023],
-                        q2: [0.9, 0.62, 1.18, 0.691979, null]
-                    }
-                },
-                certif: {
-                    obras: ['SM', 'ARN', 'PEDR ALB', 'LMB', 'SUP', 'PAMP', 'OH PAMPA'],
-                    avanceAcum: [0.4442, 0.14, 0.2472, 0.085, 0.4297, 0.8037, 0.2161],
-                    certifReal: [113822063, 11835598.72, 83681875, 22095922, 16500314, 8691, 9894625],
-                    certifPrevisto: [92500133.71, 14502989.84, 82374064.16, 63470495.32, 20313940, 0, 0],
-                    desvio: [21321929.29, -2667391.12, 1307810.84, -41374573.32, -3813626, null, null],
-                    desvioPct: [0.2305, -0.1839, 0.0156, -0.6519, -0.1877, null, null],
-                    adicionales: [2296000, 3023956, 0, 10509273, 0, 0, 0],
-                    isPampUSD: [false, false, false, false, false, true, false]
-                }
+            "2026-04": {
+                        "month": "Abril 2026",
+                        "promPonderado": {
+                                    "martella": 0.9835866777297831,
+                                    "therock": 0.789
+                        },
+                        "idxs": {
+                                    "obras": [
+                                                "SM",
+                                                "ARN",
+                                                "PEDR",
+                                                "LMB",
+                                                "SUP",
+                                                "DELG"
+                                    ],
+                                    "martella": {
+                                                "q1": [
+                                                            0.937010515902212,
+                                                            0.9869487010972747,
+                                                            1.0561067250585467,
+                                                            0.9626921801414089,
+                                                            0.95496814888288,
+                                                            0.93
+                                                ],
+                                                "q2": [
+                                                            0.916525864632104,
+                                                            1.01582785804197,
+                                                            1.0341896883312414,
+                                                            0.9487692552394932,
+                                                            0.9444971236410142,
+                                                            0.93
+                                                ]
+                                    },
+                                    "therock": {
+                                                "q1": [
+                                                            1.0874581231630838,
+                                                            0.9968924302788844,
+                                                            1.1764372918978914,
+                                                            1.33,
+                                                            1.02,
+                                                            0.12
+                                                ],
+                                                "q2": [
+                                                            0.651776491056887,
+                                                            0.5856401002181071,
+                                                            0.4623224001683656,
+                                                            0.74,
+                                                            1.02,
+                                                            0.12
+                                                ]
+                                    }
+                        },
+                        "certif": {
+                                    "obras": [
+                                                "SM",
+                                                "ARN",
+                                                "PEDR",
+                                                "LMB",
+                                                "SUP",
+                                                "PAMP",
+                                                "OH PAMP",
+                                                "DELG"
+                                    ],
+                                    "avanceAcum": [
+                                                0.5498,
+                                                0.1731,
+                                                0.3563,
+                                                0.128,
+                                                0.9891,
+                                                0.9737,
+                                                0.4498,
+                                                0.0267
+                                    ],
+                                    "certifReal": [
+                                                114084207.61884122,
+                                                25426406.55165054,
+                                                46210155.63457933,
+                                                31550140.71210099,
+                                                39439108.0,
+                                                49249.0,
+                                                10703167.0,
+                                                10198272.11
+                                    ],
+                                    "certifPrevisto": [
+                                                104669033.65220748,
+                                                27503464.986889597,
+                                                95320293.00563675,
+                                                34274963.315373145,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                    ],
+                                    "desvio": [
+                                                9415173.966633737,
+                                                -2077058.435239058,
+                                                -49110137.37105742,
+                                                -2724822.603272155,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                    ],
+                                    "desvioPct": [
+                                                0.08995185718364727,
+                                                -0.07551988217590598,
+                                                -0.5152117751899199,
+                                                -0.0794989210695962,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                    ],
+                                    "adicionales": [
+                                                null,
+                                                null,
+                                                null,
+                                                1241258.0,
+                                                null,
+                                                null,
+                                                null,
+                                                null
+                                    ],
+                                    "isPampUSD": [
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                true,
+                                                false,
+                                                false
+                                    ]
+                        },
+                        "kpase": {
+                                    "SM": {
+                                                "pase_licitacion": 1.21,
+                                                "pase_esperado": 1.29,
+                                                "coef_pase": 0.937984496124031
+                                    },
+                                    "ARN": {
+                                                "pase_licitacion": 1.32,
+                                                "pase_esperado": 1.23,
+                                                "coef_pase": 1.0731707317073171
+                                    },
+                                    "PEDR": {
+                                                "pase_licitacion": 1.4,
+                                                "pase_esperado": 1.46,
+                                                "coef_pase": 0.958904109589041
+                                    },
+                                    "LMB": {
+                                                "pase_licitacion": 1.29,
+                                                "pase_esperado": 1.22,
+                                                "coef_pase": 1.0573770491803278
+                                    },
+                                    "SUP": {
+                                                "pase_licitacion": 1.27,
+                                                "pase_esperado": 1.25,
+                                                "coef_pase": 1.016
+                                    },
+                                    "PAMP": {
+                                                "pase_licitacion": 1.5,
+                                                "pase_esperado": 2.74,
+                                                "coef_pase": 0.5474452554744526
+                                    },
+                                    "OH PAMP": {
+                                                "pase_licitacion": 1.75,
+                                                "pase_esperado": 2.91,
+                                                "coef_pase": 0.6013745704467354
+                                    },
+                                    "DELG": {
+                                                "pase_licitacion": 1.31,
+                                                "pase_esperado": 1.29,
+                                                "coef_pase": 1.0155038759689923
+                                    }
+                        }
+            },
+            "2026-03": {
+                        "month": "Marzo 2026",
+                        "promPonderado": {
+                                    "martella": 1.0319418686058166,
+                                    "therock": 0.848
+                        },
+                        "idxs": {
+                                    "obras": [
+                                                "SM",
+                                                "ARN",
+                                                "PEDR",
+                                                "LMB",
+                                                "SUP",
+                                                "DELG"
+                                    ],
+                                    "martella": {
+                                                "q1": [
+                                                            1.0695943044471536,
+                                                            1.0526593624544842,
+                                                            1.0453889729476924,
+                                                            0.9749108165394819,
+                                                            0.9810498058201719,
+                                                            null
+                                                ],
+                                                "q2": [
+                                                            1.0443710373194854,
+                                                            1.0303398886688224,
+                                                            1.0470582703581475,
+                                                            0.965519041723747,
+                                                            0.9452290828691281,
+                                                            0.92
+                                                ]
+                                    },
+                                    "therock": {
+                                                "q1": [
+                                                            1.1444456685805655,
+                                                            0.5286352101640779,
+                                                            1.0248471663808474,
+                                                            0.63,
+                                                            0.4,
+                                                            null
+                                                ],
+                                                "q2": [
+                                                            0.8978044792679514,
+                                                            0.6219554353131738,
+                                                            1.1785921426578394,
+                                                            0.6919794275360375,
+                                                            0.4,
+                                                            null
+                                                ]
+                                    }
+                        },
+                        "certif": {
+                                    "obras": [
+                                                "SM",
+                                                "ARN",
+                                                "PEDR",
+                                                "LMB",
+                                                "SUP",
+                                                "PAMP",
+                                                "OH PAMP"
+                                    ],
+                                    "avanceAcum": [
+                                                0.4442,
+                                                0.14000039342178056,
+                                                0.2472,
+                                                0.085,
+                                                0.4297,
+                                                0.8037,
+                                                0.2161
+                                    ],
+                                    "certifReal": [
+                                                113822063.0,
+                                                11835598.71982668,
+                                                83681875.0,
+                                                22095922.0,
+                                                16500314.0,
+                                                8691.0,
+                                                9894625.0
+                                    ],
+                                    "certifPrevisto": [
+                                                92500133.7092558,
+                                                14502989.836914144,
+                                                82374064.16121797,
+                                                63470495.320992656,
+                                                20313940.0,
+                                                null,
+                                                null
+                                    ],
+                                    "desvio": [
+                                                21321929.2907442,
+                                                -2667391.117087465,
+                                                1307810.8387820274,
+                                                -41374573.320992656,
+                                                -3813626.0,
+                                                null,
+                                                null
+                                    ],
+                                    "desvioPct": [
+                                                0.230507010484577,
+                                                -0.18392008455375264,
+                                                0.015876487971049385,
+                                                -0.6518709695228762,
+                                                -0.1877344326113004,
+                                                null,
+                                                null
+                                    ],
+                                    "adicionales": [
+                                                2296000.0,
+                                                3023956.0,
+                                                null,
+                                                10509273.0,
+                                                null,
+                                                null,
+                                                null
+                                    ],
+                                    "isPampUSD": [
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                false,
+                                                true,
+                                                false
+                                    ]
+                        },
+                        "kpase": {
+                                    "SM": {
+                                                "pase_licitacion": 1.21,
+                                                "pase_esperado": 1.22,
+                                                "coef_pase": 0.9918032786885246
+                                    },
+                                    "ARN": {
+                                                "pase_licitacion": 1.32,
+                                                "pase_esperado": 1.26,
+                                                "coef_pase": 1.0476190476190477
+                                    },
+                                    "PEDR": {
+                                                "pase_licitacion": 1.4,
+                                                "pase_esperado": 1.5,
+                                                "coef_pase": 0.9333333333333332
+                                    },
+                                    "LMB": {
+                                                "pase_licitacion": 1.29,
+                                                "pase_esperado": 1.26,
+                                                "coef_pase": 1.0238095238095237
+                                    },
+                                    "SUP": {
+                                                "pase_licitacion": 1.34,
+                                                "pase_esperado": 1.18,
+                                                "coef_pase": 1.1355932203389831
+                                    },
+                                    "PAMP": {
+                                                "pase_licitacion": 1.5,
+                                                "pase_esperado": 2.39,
+                                                "coef_pase": 0.6276150627615062
+                                    },
+                                    "OH PAMP": {
+                                                "pase_licitacion": 1.7,
+                                                "pase_esperado": 1.78,
+                                                "coef_pase": 0.9550561797752809
+                                    }
+                        }
             }
-        };
+};
 
-        let currentPeriod = '2026-04';
+        // Serie histórica de IDXs por obra
+        const serieHistorica = {
+            "periodos": [
+                        "1Q JUN 25",
+                        "2Q JUN 25",
+                        "1Q JUL 25",
+                        "2Q JUL 25",
+                        "1Q AGO 25",
+                        "2Q AGO 25",
+                        "1Q SEP 25",
+                        "2Q SEP 25",
+                        "1Q OCT 25",
+                        "2Q OCT 25",
+                        "1Q NOV 25",
+                        "2Q NOV 25",
+                        "1Q DIC 25",
+                        "2Q DIC 25",
+                        "1Q ENE 26",
+                        "2Q ENE 26",
+                        "1Q FEB 26",
+                        "2Q FEB 26",
+                        "1Q MAR 26",
+                        "2Q MAR 26",
+                        "1Q ABR 26",
+                        "2Q ABR 26",
+                        "1Q MAY 26"
+            ],
+            "PEDR": {
+                        "martella": [
+                                    0.9146146562808224,
+                                    0.9224705324437589,
+                                    0.9854111089747828,
+                                    1.0182802165468505,
+                                    1.044866856389184,
+                                    1.0138430473743953,
+                                    1.0024512430394188,
+                                    1.022721302853363,
+                                    1.0398867396125788,
+                                    1.0304265780984037,
+                                    1.0262305063375345,
+                                    1.0386681606578219,
+                                    1.0385040540864416,
+                                    1.0446377841158734,
+                                    1.0404794247705125,
+                                    1.0504788755922474,
+                                    1.0867412159520589,
+                                    1.0282139348751194,
+                                    1.0453889729476924,
+                                    1.0470582703581475,
+                                    1.0561067250585467,
+                                    1.0341896883312414,
+                                    1.04
+                        ],
+                        "therock": [
+                                    0.0535529410691928,
+                                    0.1616386329279326,
+                                    0.3806934691345144,
+                                    0.5789889678448494,
+                                    0.6028369917248774,
+                                    0.960826435905571,
+                                    1.179658881777091,
+                                    1.198941023383723,
+                                    1.1224489295325246,
+                                    0.8015507895272952,
+                                    0.9481704847899467,
+                                    0.61679526848899,
+                                    0.6626327952196015,
+                                    0.5895226806546909,
+                                    0.9909277851133245,
+                                    1.2535970978785498,
+                                    0.5566122869138714,
+                                    0.6856282946510448,
+                                    1.0248471663808474,
+                                    1.1785921426578394,
+                                    1.1764372918978914,
+                                    0.4623224001683656,
+                                    0.72
+                        ]
+            },
+            "SM": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    1.1158471721973822,
+                                    1.1837209092508263,
+                                    1.189446602971776,
+                                    1.151995045363392,
+                                    1.1230376080742506,
+                                    1.1151037966090773,
+                                    1.1083186623489962,
+                                    1.1065710940307276,
+                                    1.0500443270446356,
+                                    1.009819295649499,
+                                    1.0662933301858921,
+                                    1.059495800528383,
+                                    1.0494511289017139,
+                                    1.0695943044471536,
+                                    1.0443710373194854,
+                                    0.937010515902212,
+                                    0.916525864632104,
+                                    0.9
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.8397116537620959,
+                                    1.4587478506840261,
+                                    0.5989244329556099,
+                                    1.0501238683527523,
+                                    0.9040931049342354,
+                                    0.866942141134908,
+                                    0.28940035699364464,
+                                    0.5668732328039318,
+                                    0.5819809838508341,
+                                    0.6459770796134613,
+                                    0.6258469764192683,
+                                    1.372638663801891,
+                                    1.1444456685805655,
+                                    0.8978044792679514,
+                                    1.0874581231630838,
+                                    0.651776491056887,
+                                    0.29
+                        ]
+            },
+            "ARN": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    1.0783912289347337,
+                                    1.0986515613041838,
+                                    1.1087326772260866,
+                                    1.09307491008885,
+                                    1.065890451946332,
+                                    1.0526593624544842,
+                                    1.0303398886688224,
+                                    0.9869487010972747,
+                                    1.01582785804197,
+                                    1.03
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.9054083639764225,
+                                    0.6907285743617341,
+                                    0.7557796926521476,
+                                    1.1459583234100275,
+                                    0.5881139961930347,
+                                    0.5286352101640779,
+                                    0.6219554353131738,
+                                    0.9968924302788844,
+                                    0.5856401002181071,
+                                    0.51
+                        ]
+            },
+            "LMB": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    1.3582093509050257,
+                                    0.9493216702258617,
+                                    0.9749108165394819,
+                                    0.965519041723747,
+                                    0.9626921801414089,
+                                    0.9487692552394932,
+                                    0.98
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.2621534751870046,
+                                    0.44178671221511845,
+                                    0.63,
+                                    0.6919794275360375,
+                                    1.33,
+                                    0.74,
+                                    0.71
+                        ]
+            },
+            "SUP": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.9253045522547552,
+                                    0.9265340510269079,
+                                    0.9810498058201719,
+                                    0.9452290828691281,
+                                    0.95496814888288,
+                                    0.9444971236410142,
+                                    0.88
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    1.02,
+                                    1.02,
+                                    0.4,
+                                    0.4,
+                                    1.02,
+                                    1.02,
+                                    null
+                        ]
+            },
+            "DELG": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.92,
+                                    0.93,
+                                    0.93,
+                                    0.99
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.12,
+                                    0.12,
+                                    null
+                        ]
+            }
+};
+
+        // Serie histórica de IDX ponderado por obra
+        const serieHistoricaPond = {
+            "periodos": [
+                        "1Q JUN 25",
+                        "2Q JUN 25",
+                        "1Q JUL 25",
+                        "2Q JUL 25",
+                        "1Q AGO 25",
+                        "2Q AGO 25",
+                        "1Q SEP 25",
+                        "2Q SEP 25",
+                        "1Q OCT 25",
+                        "2Q OCT 25",
+                        "1Q NOV 25",
+                        "2Q NOV 25",
+                        "1Q DIC 25",
+                        "2Q DIC 25",
+                        "1Q ENE 26",
+                        "2Q ENE 26",
+                        "1Q FEB 26",
+                        "2Q FEB 26",
+                        "1Q MAR 26",
+                        "2Q MAR 26",
+                        "1Q ABR 26",
+                        "2Q ABR 26",
+                        "1Q MAY 26"
+            ],
+            "PEDR": {
+                        "martella": [
+                                    0.9146146562808224,
+                                    0.9197249838868142,
+                                    0.9645786162284369,
+                                    0.9914294163876438,
+                                    1.0095467088801446,
+                                    1.0105550780745187,
+                                    1.0083617634209623,
+                                    1.0112649601770756,
+                                    1.0112649601770756,
+                                    1.0189033880336757,
+                                    1.0199852560875515,
+                                    1.0226037140823128,
+                                    1.0249171383646458,
+                                    1.0269843242454417,
+                                    1.0280555177442012,
+                                    1.0292309005498488,
+                                    1.0322332258980025,
+                                    1.0321102068834807,
+                                    1.0327002332781159,
+                                    1.0332993848025491,
+                                    1.0339521823364815,
+                                    1.0339637658941987,
+                                    1.03
+                        ],
+                        "therock": [
+                                    0.0535529410691928,
+                                    0.12386378653852609,
+                                    0.29923939504258285,
+                                    0.4391141814437161,
+                                    0.49462234279037726,
+                                    0.6040424563166975,
+                                    0.7598338730128282,
+                                    0.8486121002355203,
+                                    0.8943941314908874,
+                                    0.8759678846297746,
+                                    0.8866287861302892,
+                                    0.8488109121019228,
+                                    0.8217228764798709,
+                                    0.7973828537248865,
+                                    0.8127457679792862,
+                                    0.8358542192880462,
+                                    0.8212763974491114,
+                                    0.8171245965884707,
+                                    0.8263545053274535,
+                                    0.8410531522380942,
+                                    0.8506526029777454,
+                                    0.8317131007466287,
+                                    0.84
+                        ]
+            },
+            "SM": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    1.1158471721973822,
+                                    1.179751684861736,
+                                    1.184965978656055,
+                                    1.1717157781766563,
+                                    1.156810954894964,
+                                    1.1462897261022815,
+                                    1.1398571803341018,
+                                    1.1348064435326914,
+                                    1.122290200304298,
+                                    1.1030177883807273,
+                                    1.0962657916049874,
+                                    1.0911453736157213,
+                                    1.08753056253122,
+                                    1.0855158561637412,
+                                    1.0821092459882424,
+                                    1.0767361214632665,
+                                    1.0705724472167646,
+                                    1.06
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.8397116537620959,
+                                    1.1819011070606074,
+                                    0.9437676841514676,
+                                    0.9767023918272285,
+                                    0.9582307464471437,
+                                    0.9426573816800732,
+                                    0.8429448258434856,
+                                    0.8019728724727642,
+                                    0.764118262855731,
+                                    0.7423231122357115,
+                                    0.7260554955015713,
+                                    0.7822635146960633,
+                                    0.823042874758439,
+                                    0.8292463304502838,
+                                    0.8388282389479568,
+                                    0.8316173528292645,
+                                    0.81
+                        ]
+            },
+            "ARN": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    1.0783912289347337,
+                                    1.0919185203354844,
+                                    1.098704774648088,
+                                    1.0969324098794389,
+                                    1.0877547875339986,
+                                    1.0769213034472356,
+                                    1.0643557725511272,
+                                    1.0476381895749467,
+                                    1.0408143187797543,
+                                    1.04
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.9054083639764225,
+                                    0.7620723110916909,
+                                    0.7595325876133887,
+                                    0.8811851340678861,
+                                    0.794538015044017,
+                                    0.7124574077065666,
+                                    0.6880441232308248,
+                                    0.7547460033453172,
+                                    0.718469838400348,
+                                    0.68
+                        ]
+            },
+            "LMB": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    1.3582093509050257,
+                                    1.1170704622993648,
+                                    1.0322496712731817,
+                                    1.0057012699123167,
+                                    0.996868607585935,
+                                    0.9860097499680823,
+                                    0.98
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.2621534751870046,
+                                    0.3680910252292256,
+                                    0.5243612965721697,
+                                    0.5910472164598307,
+                                    0.7428039833878556,
+                                    0.7421709591393741,
+                                    0.73
+                        ]
+            },
+            "SUP": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.9253045522547552,
+                                    0.9263439223508018,
+                                    0.9598239230340562,
+                                    0.954402458208492,
+                                    0.9545647361249457,
+                                    0.9524903063640218,
+                                    0.94
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    1.02,
+                                    1.02,
+                                    0.5512005028284098,
+                                    0.5512005028284098,
+                                    0.7545693950177936,
+                                    0.7545693950177936,
+                                    null
+                        ]
+            },
+            "DELG": {
+                        "martella": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.92,
+                                    0.925475638051044,
+                                    0.9275190839694656,
+                                    null
+                        ],
+                        "therock": [
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    null,
+                                    0.12,
+                                    0.12,
+                                    0.12,
+                                    null
+                        ]
+            }
+};
+
+        // Serie histórica de k y pase
+        const kpaseHistorico = {
+            "PEDR": [
+                        {
+                                    "periodo": "Ago 25",
+                                    "periodKey": "2025-08",
+                                    "pase_licitacion": 1.24,
+                                    "pase_esperado": 1.16,
+                                    "coef_pase": 1.0689655172413794
+                        },
+                        {
+                                    "periodo": "Sep 25",
+                                    "periodKey": "2025-09",
+                                    "pase_licitacion": 1.24,
+                                    "pase_esperado": 1.17,
+                                    "coef_pase": 1.0598290598290598
+                        },
+                        {
+                                    "periodo": "Oct 25",
+                                    "periodKey": "2025-10",
+                                    "pase_licitacion": 1.24,
+                                    "pase_esperado": 1.16,
+                                    "coef_pase": 1.0689655172413794
+                        },
+                        {
+                                    "periodo": "Nov 25",
+                                    "periodKey": "2025-11",
+                                    "pase_licitacion": 1.24,
+                                    "pase_esperado": 1.15,
+                                    "coef_pase": 1.0782608695652174
+                        },
+                        {
+                                    "periodo": "Dic 25",
+                                    "periodKey": "2025-12",
+                                    "pase_licitacion": 1.24,
+                                    "pase_esperado": 1.14,
+                                    "coef_pase": 1.087719298245614
+                        },
+                        {
+                                    "periodo": "Ene 26",
+                                    "periodKey": "2026-01",
+                                    "pase_licitacion": 1.42,
+                                    "pase_esperado": 1.42,
+                                    "coef_pase": 1.0
+                        },
+                        {
+                                    "periodo": "Feb 26",
+                                    "periodKey": "2026-02",
+                                    "pase_licitacion": 1.4,
+                                    "pase_esperado": 1.41,
+                                    "coef_pase": 0.9929078014184397
+                        },
+                        {
+                                    "periodo": "Mar 26",
+                                    "periodKey": "2026-03",
+                                    "pase_licitacion": 1.4,
+                                    "pase_esperado": 1.5,
+                                    "coef_pase": 0.9333333333333332
+                        },
+                        {
+                                    "periodo": "Abr 26",
+                                    "periodKey": "2026-04",
+                                    "pase_licitacion": 1.4,
+                                    "pase_esperado": 1.46,
+                                    "coef_pase": 0.958904109589041
+                        }
+            ],
+            "LA DOLF": [
+                        {
+                                    "periodo": "Sep 25",
+                                    "periodKey": "2025-09",
+                                    "pase_licitacion": 1.38,
+                                    "pase_esperado": 1.35,
+                                    "coef_pase": 1.0222222222222221
+                        },
+                        {
+                                    "periodo": "Oct 25",
+                                    "periodKey": "2025-10",
+                                    "pase_licitacion": 1.38,
+                                    "pase_esperado": 1.58,
+                                    "coef_pase": 0.8734177215189872
+                        },
+                        {
+                                    "periodo": "Nov 25",
+                                    "periodKey": "2025-11",
+                                    "pase_licitacion": 1.38,
+                                    "pase_esperado": 1.58,
+                                    "coef_pase": 0.8734177215189872
+                        },
+                        {
+                                    "periodo": "Dic 25",
+                                    "periodKey": "2025-12",
+                                    "pase_licitacion": 1.38,
+                                    "pase_esperado": 1.45,
+                                    "coef_pase": 0.9517241379310344
+                        },
+                        {
+                                    "periodo": "Ene 26",
+                                    "periodKey": "2026-01",
+                                    "pase_licitacion": 1.4,
+                                    "pase_esperado": 1.79,
+                                    "coef_pase": 0.7821229050279329
+                        },
+                        {
+                                    "periodo": "Feb 26",
+                                    "periodKey": "2026-02",
+                                    "pase_licitacion": 1.4,
+                                    "pase_esperado": 1.84,
+                                    "coef_pase": 0.7608695652173912
+                        },
+                        {
+                                    "periodo": "Mar 26",
+                                    "periodKey": "2026-03",
+                                    "pase_licitacion": 1.4,
+                                    "pase_esperado": 1.83,
+                                    "coef_pase": 0.7650273224043715
+                        },
+                        {
+                                    "periodo": "Abr 26",
+                                    "periodKey": "2026-04",
+                                    "pase_licitacion": 1.4,
+                                    "pase_esperado": 1.88,
+                                    "coef_pase": 0.7446808510638298
+                        }
+            ],
+            "SM": [
+                        {
+                                    "periodo": "Sep 25",
+                                    "periodKey": "2025-09",
+                                    "pase_licitacion": 1.22,
+                                    "pase_esperado": 1.21,
+                                    "coef_pase": 1.0082644628099173
+                        },
+                        {
+                                    "periodo": "Oct 25",
+                                    "periodKey": "2025-10",
+                                    "pase_licitacion": 1.22,
+                                    "pase_esperado": 1.23,
+                                    "coef_pase": 0.991869918699187
+                        },
+                        {
+                                    "periodo": "Nov 25",
+                                    "periodKey": "2025-11",
+                                    "pase_licitacion": 1.22,
+                                    "pase_esperado": 1.24,
+                                    "coef_pase": 0.9838709677419355
+                        },
+                        {
+                                    "periodo": "Dic 25",
+                                    "periodKey": "2025-12",
+                                    "pase_licitacion": 1.22,
+                                    "pase_esperado": 1.24,
+                                    "coef_pase": 0.9838709677419355
+                        },
+                        {
+                                    "periodo": "Ene 26",
+                                    "periodKey": "2026-01",
+                                    "pase_licitacion": 1.21,
+                                    "pase_esperado": 1.17,
+                                    "coef_pase": 1.0341880341880343
+                        },
+                        {
+                                    "periodo": "Feb 26",
+                                    "periodKey": "2026-02",
+                                    "pase_licitacion": 1.21,
+                                    "pase_esperado": 1.19,
+                                    "coef_pase": 1.0168067226890756
+                        },
+                        {
+                                    "periodo": "Mar 26",
+                                    "periodKey": "2026-03",
+                                    "pase_licitacion": 1.21,
+                                    "pase_esperado": 1.22,
+                                    "coef_pase": 0.9918032786885246
+                        },
+                        {
+                                    "periodo": "Abr 26",
+                                    "periodKey": "2026-04",
+                                    "pase_licitacion": 1.21,
+                                    "pase_esperado": 1.29,
+                                    "coef_pase": 0.937984496124031
+                        }
+            ],
+            "PAMP": [
+                        {
+                                    "periodo": "Oct 25",
+                                    "periodKey": "2025-10",
+                                    "pase_licitacion": 1.48,
+                                    "pase_esperado": 1.48,
+                                    "coef_pase": 1.0
+                        },
+                        {
+                                    "periodo": "Nov 25",
+                                    "periodKey": "2025-11",
+                                    "pase_licitacion": 1.48,
+                                    "pase_esperado": 2.06,
+                                    "coef_pase": 0.7184466019417476
+                        },
+                        {
+                                    "periodo": "Dic 25",
+                                    "periodKey": "2025-12",
+                                    "pase_licitacion": 1.48,
+                                    "pase_esperado": 2.33,
+                                    "coef_pase": 0.6351931330472103
+                        },
+                        {
+                                    "periodo": "Ene 26",
+                                    "periodKey": "2026-01",
+                                    "pase_licitacion": 1.51,
+                                    "pase_esperado": 2.56,
+                                    "coef_pase": 0.58984375
+                        },
+                        {
+                                    "periodo": "Feb 26",
+                                    "periodKey": "2026-02",
+                                    "pase_licitacion": 1.5,
+                                    "pase_esperado": 2.4,
+                                    "coef_pase": 0.625
+                        },
+                        {
+                                    "periodo": "Mar 26",
+                                    "periodKey": "2026-03",
+                                    "pase_licitacion": 1.5,
+                                    "pase_esperado": 2.39,
+                                    "coef_pase": 0.6276150627615062
+                        },
+                        {
+                                    "periodo": "Abr 26",
+                                    "periodKey": "2026-04",
+                                    "pase_licitacion": 1.5,
+                                    "pase_esperado": 2.74,
+                                    "coef_pase": 0.5474452554744526
+                        }
+            ],
+            "ARN": [
+                        {
+                                    "periodo": "Dic 25",
+                                    "periodKey": "2025-12",
+                                    "pase_licitacion": 1.34,
+                                    "pase_esperado": 1.33,
+                                    "coef_pase": 1.0075187969924813
+                        },
+                        {
+                                    "periodo": "Ene 26",
+                                    "periodKey": "2026-01",
+                                    "pase_licitacion": 1.37,
+                                    "pase_esperado": 1.35,
+                                    "coef_pase": 1.0148148148148148
+                        },
+                        {
+                                    "periodo": "Feb 26",
+                                    "periodKey": "2026-02",
+                                    "pase_licitacion": 1.32,
+                                    "pase_esperado": 1.28,
+                                    "coef_pase": 1.03125
+                        },
+                        {
+                                    "periodo": "Mar 26",
+                                    "periodKey": "2026-03",
+                                    "pase_licitacion": 1.32,
+                                    "pase_esperado": 1.26,
+                                    "coef_pase": 1.0476190476190477
+                        },
+                        {
+                                    "periodo": "Abr 26",
+                                    "periodKey": "2026-04",
+                                    "pase_licitacion": 1.32,
+                                    "pase_esperado": 1.23,
+                                    "coef_pase": 1.0731707317073171
+                        }
+            ],
+            "LMB": [
+                        {
+                                    "periodo": "Dic 25",
+                                    "periodKey": "2025-12",
+                                    "pase_licitacion": 1.3,
+                                    "pase_esperado": 1.31,
+                                    "coef_pase": 0.9923664122137404
+                        },
+                        {
+                                    "periodo": "Ene 26",
+                                    "periodKey": "2026-01",
+                                    "pase_licitacion": 1.33,
+                                    "pase_esperado": 1.33,
+                                    "coef_pase": 1.0
+                        },
+                        {
+                                    "periodo": "Feb 26",
+                                    "periodKey": "2026-02",
+                                    "pase_licitacion": 1.29,
+                                    "pase_esperado": 1.28,
+                                    "coef_pase": 1.0078125
+                        },
+                        {
+                                    "periodo": "Mar 26",
+                                    "periodKey": "2026-03",
+                                    "pase_licitacion": 1.29,
+                                    "pase_esperado": 1.26,
+                                    "coef_pase": 1.0238095238095237
+                        },
+                        {
+                                    "periodo": "Abr 26",
+                                    "periodKey": "2026-04",
+                                    "pase_licitacion": 1.29,
+                                    "pase_esperado": 1.22,
+                                    "coef_pase": 1.0573770491803278
+                        }
+            ],
+            "SUP": [
+                        {
+                                    "periodo": "Ene 26",
+                                    "periodKey": "2026-01",
+                                    "pase_licitacion": 1.34,
+                                    "pase_esperado": 1.34,
+                                    "coef_pase": 1.0
+                        },
+                        {
+                                    "periodo": "Feb 26",
+                                    "periodKey": "2026-02",
+                                    "pase_licitacion": 1.34,
+                                    "pase_esperado": 1.35,
+                                    "coef_pase": 0.9925925925925926
+                        },
+                        {
+                                    "periodo": "Mar 26",
+                                    "periodKey": "2026-03",
+                                    "pase_licitacion": 1.34,
+                                    "pase_esperado": 1.18,
+                                    "coef_pase": 1.1355932203389831
+                        },
+                        {
+                                    "periodo": "Abr 26",
+                                    "periodKey": "2026-04",
+                                    "pase_licitacion": 1.27,
+                                    "pase_esperado": 1.25,
+                                    "coef_pase": 1.016
+                        }
+            ],
+            "DELG": [
+                        {
+                                    "periodo": "Mar 26",
+                                    "periodKey": "2026-03",
+                                    "pase_licitacion": 1.31,
+                                    "pase_esperado": 1.33,
+                                    "coef_pase": 0.9849624060150376
+                        },
+                        {
+                                    "periodo": "Abr 26",
+                                    "periodKey": "2026-04",
+                                    "pase_licitacion": 1.31,
+                                    "pase_esperado": 1.29,
+                                    "coef_pase": 1.0155038759689923
+                        }
+            ],
+            "OH PAMP": [
+                        {
+                                    "periodo": "Mar 26",
+                                    "periodKey": "2026-03",
+                                    "pase_licitacion": 1.7,
+                                    "pase_esperado": 1.78,
+                                    "coef_pase": 0.9550561797752809
+                        },
+                        {
+                                    "periodo": "Abr 26",
+                                    "periodKey": "2026-04",
+                                    "pase_licitacion": 1.75,
+                                    "pase_esperado": 2.91,
+                                    "coef_pase": 0.6013745704467354
+                        }
+            ]
+};
+
+        let currentPeriod = '2026-05';
         let idxChart = null;
         let certifChart = null;
+        let historicalChart = null;
+        let kpaseChart = null;
 
         function formatCurrency(value, isUSD = false) {
             if (value === null || value === undefined) return '-';
@@ -802,6 +2411,28 @@
             }
         }
 
+        function closeHistorical() {
+            const overlay = document.getElementById('historical-overlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            if (historicalChart) {
+                historicalChart.destroy();
+                historicalChart = null;
+            }
+        }
+
+        function closeKpaseHistorical() {
+            const overlay = document.getElementById('kpase-historical-overlay');
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            if (kpaseChart) {
+                kpaseChart.destroy();
+                kpaseChart = null;
+            }
+        }
+
         function renderProjection() {
             const data = dataStore['proyeccion'];
             const container = document.getElementById('dashboard-content');
@@ -810,7 +2441,7 @@
             
             container.innerHTML = `
                 <div class="projection-card">
-                    <h2 class="projection-title">Proyección del Próximo Período</h2>
+                    <h2 class="projection-title">Proyección del Próximo Período ${data.projectionLabel ? `(${data.projectionLabel})` : ``}</h2>
                     
                     <div class="projection-total">
                         <div class="projection-total-label">Total Certificado Previsto Próximo Mes</div>
@@ -850,6 +2481,9 @@
         }
 
         function renderDashboard(period) {
+            closeHistorical();
+            closeKpaseHistorical();
+            
             if (period === 'proyeccion') {
                 renderProjection();
                 return;
@@ -865,15 +2499,15 @@
                 calcularPromedioObra(data.idxs.therock.q1[i], data.idxs.therock.q2[i])
             );
             
-            const avgMartella = calcularPromedio(promediosMartellaObras);
-            const avgTheRock = calcularPromedio(promediosTheRockObras);
+            const avgMartella = data.promPonderado.martella;
+            const avgTheRock = data.promPonderado.therock;
             
-            // Calcular total excluyendo PAMP
             const totalCertifReal = data.certif.certifReal.reduce((sum, val, i) => {
-                if (data.certif.obras[i] !== 'PAMP') return sum + val;
+                const obra = data.certif.obras[i];
+                if (obra !== 'PAMP' && obra !== 'OH PAMP' && obra !== 'OH PAMPA' && val != null && !isNaN(val)) return sum + Number(val);
                 return sum;
             }, 0);
-            const totalCertifPrevisto = data.certif.certifPrevisto.reduce((a, b) => a + b, 0);
+            const totalCertifPrevisto = data.certif.certifPrevisto.reduce((a, b) => a + (b != null && !isNaN(b) ? Number(b) : 0), 0);
             const totalAdicionales = data.certif.adicionales
                 .filter(v => v != null)
                 .reduce((a, b) => a + b, 0);
@@ -885,41 +2519,53 @@
             let martellaStatus = '';
             let therockStatus = '';
 
-            if (period === '2026-04') {
-                const dataPrev = dataStore['2026-03'];
-                const promediosMartellaObrasPrev = dataPrev.idxs.obras.map((obra, i) => 
-                    calcularPromedioObra(dataPrev.idxs.martella.q1[i], dataPrev.idxs.martella.q2[i])
-                );
-                const promediosTheRockObrasPrev = dataPrev.idxs.obras.map((obra, i) => 
-                    calcularPromedioObra(dataPrev.idxs.therock.q1[i], dataPrev.idxs.therock.q2[i])
-                );
-                const avgMartellaPrev = calcularPromedio(promediosMartellaObrasPrev);
-                const avgTheRockPrev = calcularPromedio(promediosTheRockObrasPrev);
+            const previousPeriodMap = {
+                '2026-05': '2026-04',
+                '2026-04': '2026-03'
+            };
+            const previousPeriod = previousPeriodMap[period];
+
+            if (previousPeriod && dataStore[previousPeriod]) {
+                const dataPrev = dataStore[previousPeriod];
+                const avgMartellaPrev = dataPrev.promPonderado.martella;
+                const avgTheRockPrev = dataPrev.promPonderado.therock;
                 const totalCertifRealPrev = dataPrev.certif.certifReal.reduce((sum, val, i) => {
-                    if (dataPrev.certif.obras[i] !== 'PAMP') return sum + val;
+                    const obra = dataPrev.certif.obras[i];
+                    if (obra !== 'PAMP' && obra !== 'OH PAMP' && obra !== 'OH PAMPA' && val != null && !isNaN(val)) return sum + Number(val);
                     return sum;
                 }, 0);
-                const totalCertifPrevistoPrev = dataPrev.certif.certifPrevisto.reduce((a, b) => a + b, 0);
+                const totalCertifPrevistoPrev = dataPrev.certif.certifPrevisto.reduce((a, b) => a + (b != null && !isNaN(b) ? Number(b) : 0), 0);
 
                 martellaChange = getChangeIndicator(avgMartella, avgMartellaPrev);
                 therockChange = getChangeIndicator(avgTheRock, avgTheRockPrev);
                 certifRealChange = getChangeIndicator(totalCertifReal, totalCertifRealPrev);
                 certifPrevistoChange = getChangeIndicator(totalCertifPrevisto, totalCertifPrevistoPrev);
+                if (period === '2026-05') {
+                    certifRealChange = '';
+                }
                 
                 martellaStatus = getPerformanceStatus(avgMartella, 'martella');
                 therockStatus = getPerformanceStatus(avgTheRock, 'therock');
             }
 
-            const cambiosPorObra = period === '2026-04' ? data.idxs.obras.map((obra, i) => {
-                const dataPrev = dataStore['2026-03'];
+            const cambiosPorObra = previousPeriod && dataStore[previousPeriod] ? data.idxs.obras.map((obra, i) => {
+                const dataPrev = dataStore[previousPeriod];
                 const indexPrev = dataPrev.idxs.obras.indexOf(obra);
                 
                 if (indexPrev === -1) return { martella: null, therock: null };
                 
                 const martellaActual = promediosMartellaObras[i];
                 const therockActual = promediosTheRockObras[i];
-                const martellaPrev = calcularPromedioObra(dataPrev.idxs.martella.q1[indexPrev], dataPrev.idxs.martella.q2[indexPrev]);
-                const therockPrev = calcularPromedioObra(dataPrev.idxs.therock.q1[indexPrev], dataPrev.idxs.therock.q2[indexPrev]);
+                
+                const promediosMartellaObrasPrev = dataPrev.idxs.obras.map((obra, i) => 
+                    calcularPromedioObra(dataPrev.idxs.martella.q1[i], dataPrev.idxs.martella.q2[i])
+                );
+                const promediosTheRockObrasPrev = dataPrev.idxs.obras.map((obra, i) => 
+                    calcularPromedioObra(dataPrev.idxs.therock.q1[i], dataPrev.idxs.therock.q2[i])
+                );
+                
+                const martellaPrev = promediosMartellaObrasPrev[indexPrev];
+                const therockPrev = promediosTheRockObrasPrev[indexPrev];
                 
                 return {
                     martella: getChangeIndicator(martellaActual, martellaPrev),
@@ -927,12 +2573,12 @@
                 };
             }) : data.idxs.obras.map(() => ({ martella: '', therock: '' }));
 
-            const showDefinitions = period === '2026-04';
+            const showDefinitions = period === '2026-05';
 
             container.innerHTML = `
                 <div class="two-col-metrics">
-                       <div class="metric-card">
-                        <div class="metric-label">Martella IDX Promedio - Todas las Obras</div>
+                    <div class="metric-card">
+                        <div class="metric-label">Martella IDX Promedio Ponderado - Todas las Obras</div>
                         <div class="metric-header">
                             <div class="metric-value">${formatNumber(avgMartella)}</div>
                             ${martellaChange ? `<div>${martellaChange}</div>` : ''}
@@ -943,8 +2589,8 @@
                         </div>
                     </div>
 
-   <div class="metric-card">
-                        <div class="metric-label">The Rock IDX Promedio - Todas las Obras</div>
+                    <div class="metric-card">
+                        <div class="metric-label">The Rock IDX Promedio Ponderado - Todas las Obras</div>
                         <div class="metric-header">
                             <div class="metric-value">${formatNumber(avgTheRock)}</div>
                             ${therockChange ? `<div>${therockChange}</div>` : ''}
@@ -956,16 +2602,25 @@
                     </div>
                 </div>
 
-                <div class="chart-card">
+                <div class="chart-card" id="idx-chart-container">
                     <div class="chart-header">
                         <div>
                             <h3 class="chart-title">Índices de Rendimiento por Obra</h3>
                             <p class="chart-subtitle">${data.month}</p>
-                            ${period === '2026-04' ? '<p class="chart-legend-note">Indicadores sobre barras: variación vs. período anterior</p>' : ''}
+                            ${previousPeriod ? '<p class="chart-legend-note">Indicadores sobre barras: variación vs. período anterior</p>' : ''}
+                            <p class="chart-legend-note" style="color: var(--primary); margin-top: 0.5rem;">💡 Haz clic en una barra para ver la serie histórica de esa obra</p>
                         </div>
                     </div>
                     <div style="position: relative; height: 420px;">
                         <canvas id="idxChart"></canvas>
+                    </div>
+                    
+                    <div class="historical-overlay" id="historical-overlay">
+                        <button class="historical-close" onclick="closeHistorical()">×</button>
+                        <h3 class="chart-title" id="historical-title" style="margin-bottom: 1.5rem;">Serie Histórica</h3>
+                        <div style="position: relative; height: calc(100% - 80px);">
+                            <canvas id="historicalChart"></canvas>
+                        </div>
                     </div>
                     
                     <div class="legend-box">
@@ -1039,93 +2694,104 @@
 
                 <div class="two-col-metrics" style="grid-template-columns: 1fr 1fr 1fr;">
                     <div class="metric-card">
-                        <div class="metric-label">Total Certificado obra básica</div>
+                        <div class="metric-label">Total Certificado obra básica${period === '2026-05' ? ' (únicamente 1Q)' : ''}</div>
                         <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalCertifReal)}</div>
                         <div class="metric-change">
                             ${certifRealChange}
-                            ${certifRealChange ? 'vs. certificado real período anterior' : 'Certificación real del período'}
+                            ${period === '2026-05' ? '(únicamente 1Q)' : (certifRealChange ? 'vs. certificado real período anterior' : 'Certificación real del período')}
                         </div>
                     </div>
 
                     <div class="metric-card">
-                        <div class="metric-label">Total Certificado obra básica Previsto</div>
+                        <div class="metric-label">Total Certificado obra básica Previsto${period === '2026-05' ? ' (1Q y 2Q)' : ''}</div>
                         <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalCertifPrevisto)}</div>
                         <div class="metric-change">
                             ${certifPrevistoChange}
                             ${certifPrevistoChange ? 'vs. certificado previsto período anterior' : 'Certificación prevista del período'}
                         </div>
                     </div>
+                    
                     <div class="metric-card">
-        <div class="metric-label">
-            Total Adicionales
-        </div>
+                        <div class="metric-label">Total Adicionales</div>
+                        <div class="metric-value" style="font-size: 1.85rem;">${formatCurrency(totalAdicionales)}</div>
+                        <div class="metric-change">Adicionales certificados del período</div>
+                    </div>
+                </div>
 
-        <div class="metric-value" style="font-size: 1.85rem;">
-            ${formatCurrency(totalAdicionales)}
-        </div>
-
-        <div class="metric-change">
-            Adicionales certificados del período
-        </div>
-    </div>
-</div>
-
-                <div class="certif-grid">
-                    <div class="table-card">
-                        <h3 class="chart-title" style="margin-bottom: 1.5rem;">Detalle de Certificaciones por Obra</h3>
-                        <div style="overflow-x: auto;">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Obra</th>
-                                        <th>Avance Acum.</th>
-                                        <th>Certificado Real</th>
-                                        <th>Certificado Previsto</th>
-                                        <th>Desvío $</th>
-                                        <th>Desvío %</th>
-                                        <th>ADICIONALES</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${data.certif.obras.map((obra, i) => {
-                                        if (data.certif.certifReal[i] === 0) return '';
-                                        const isUSD = data.certif.isPampUSD[i];
-                                        const adicional = data.certif.adicionales[i];
-                                        return `
-                                            <tr>
-                                                <td class="obra-name">${obra}</td>
-                                                <td class="numeric-cell">${formatPercent(data.certif.avanceAcum[i])}</td>
-                                                <td class="numeric-cell">${formatCurrency(data.certif.certifReal[i], isUSD)}</td>
-                                                <td class="numeric-cell">${formatCurrency(data.certif.certifPrevisto[i], isUSD)}</td>
-                                                <td class="numeric-cell" style="color: ${data.certif.desvio[i] > 0 ? 'var(--success)' : 'var(--danger)'}">
-                                                    ${formatCurrency(data.certif.desvio[i], isUSD)}
-                                                </td>
-                                                <td class="numeric-cell">${formatPercent(data.certif.desvioPct[i])}</td>
-                                                <td class="numeric-cell">
-                                                   ${adicional != null ? formatCurrency(adicional, isUSD) : '-'}
-                                                </td>
-                                                <td>${getStatusBadge(data.certif.desvioPct[i])}</td>
-                                            </tr>
-                                        `;
-                                    }).join('')}
-                                </tbody>
-                            </table>
+                <div class="table-card">
+                    <h3 class="chart-title" style="margin-bottom: 1.5rem;">Detalle de Certificaciones por Obra</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Obra</th>
+                                    <th>Avance Acum.</th>
+                                    <th>Certificado Real${period === '2026-05' ? '<br>(1Q)' : ''}</th>
+                                    <th>Certificado Previsto${period === '2026-05' ? '<br>(Mes)' : ''}</th>
+                                    <th>Desvío $</th>
+                                    <th>Desvío %</th>
+                                    <th>ADICIONALES</th>
+                                    <th>Pase Licitación</th>
+                                    <th>Pase Esperado</th>
+                                    <th>Coef. de Pase<br><span class="coef-hint">💡 Click para ver histórico</span></th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.certif.obras.map((obra, i) => {
+                                    if (data.certif.certifReal[i] === 0) return '';
+                                    const isUSD = data.certif.isPampUSD[i];
+                                    const adicional = data.certif.adicionales[i];
+                                    const kpaseData = data.kpase[obra] || { pase_licitacion: null, pase_esperado: null, coef_pase: null };
+                                    const hasKpase = kpaseData.coef_pase !== null;
+                                    
+                                    return `
+                                        <tr>
+                                            <td class="obra-name">${obra}</td>
+                                            <td class="numeric-cell">${formatPercent(data.certif.avanceAcum[i])}</td>
+                                            <td class="numeric-cell">${formatCurrency(data.certif.certifReal[i], isUSD)}</td>
+                                            <td class="numeric-cell">${formatCurrency(data.certif.certifPrevisto[i], isUSD)}</td>
+                                            <td class="numeric-cell" style="color: ${data.certif.desvio[i] > 0 ? 'var(--success)' : 'var(--danger)'}">
+                                                ${formatCurrency(data.certif.desvio[i], isUSD)}
+                                            </td>
+                                            <td class="numeric-cell">${formatPercent(data.certif.desvioPct[i])}</td>
+                                            <td class="numeric-cell">
+                                               ${adicional != null ? formatCurrency(adicional, isUSD) : '-'}
+                                            </td>
+                                            <td class="numeric-cell">${kpaseData.pase_licitacion ? formatNumber(kpaseData.pase_licitacion) : '-'}</td>
+                                            <td class="numeric-cell">${kpaseData.pase_esperado ? formatNumber(kpaseData.pase_esperado) : '-'}</td>
+                                            <td class="numeric-cell gray-highlight-col ${hasKpase ? 'clickable-coef' : ''}" 
+                                                ${hasKpase ? `onclick="showKpaseHistorical('${obra}')"` : ''}>
+                                                ${kpaseData.coef_pase ? formatNumber(kpaseData.coef_pase) : '-'}
+                                            </td>
+                                            <td>${getStatusBadge(data.certif.desvioPct[i])}</td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="historical-overlay" id="kpase-historical-overlay">
+                        <button class="historical-close" onclick="closeKpaseHistorical()">×</button>
+                        <h3 class="chart-title" id="kpase-historical-title" style="margin-bottom: 1.5rem;">Serie Histórica de Coeficiente de Pase</h3>
+                        <div style="position: relative; height: calc(100% - 80px);">
+                            <canvas id="kpaseChart"></canvas>
                         </div>
                     </div>
+                </div>
 
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <div>
-                                <h3 class="chart-title">Distribución de Certificaciones</h3>
-                                <p class="chart-subtitle">Aporte por obra del total del certificado mensual</p>
-                            </div>
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div>
+                            <h3 class="chart-title">Distribución de Certificaciones</h3>
+                            <p class="chart-subtitle">Aporte por obra del total del certificado mensual</p>
                         </div>
-                        <div style="position: relative; height: 420px; padding-top: 20px;">
-                            <canvas id="certifChart"></canvas>
-                        </div>
-                        <p class="chart-note">Nota: Estos valores están referenciados al CAC base propio de cada obra.</p>
                     </div>
+                    <div style="position: relative; height: 420px; padding-top: 20px;">
+                        <canvas id="certifChart"></canvas>
+                    </div>
+                    <p class="chart-note">Nota: Estos valores están referenciados al CAC base propio de cada obra.</p>
                 </div>
 
                 ${showDefinitions ? `
@@ -1138,12 +2804,15 @@
                 ` : ''}
             `;
 
-            renderIdxChart(data, promediosMartellaObras, promediosTheRockObras, cambiosPorObra);
-            renderCertifChart(data);
+            setTimeout(() => {
+                renderIdxChart(data, promediosMartellaObras, promediosTheRockObras, cambiosPorObra);
+                renderCertifChart(data);
+            }, 100);
         }
 
         function renderIdxChart(data, promediosMartella, promediosTheRock, cambios) {
             const ctx = document.getElementById('idxChart');
+            if (!ctx) return;
             
             if (idxChart) {
                 idxChart.destroy();
@@ -1177,6 +2846,13 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: (event, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const index = activeElements[0].index;
+                            const obra = data.idxs.obras[index];
+                            showHistorical(obra);
+                        }
+                    },
                     layout: {
                         padding: {
                             top: 40
@@ -1219,7 +2895,8 @@
                                 family: 'JetBrains Mono'
                             },
                             formatter: function(value) {
-                                return value.toFixed(2);
+                                if (value === null || value === undefined || isNaN(value)) return '';
+                                return Number(value).toFixed(2);
                             }
                         }
                     },
@@ -1258,8 +2935,8 @@
                         chart.data.datasets.forEach((dataset, datasetIndex) => {
                             const meta = chart.getDatasetMeta(datasetIndex);
                             meta.data.forEach((bar, index) => {
-                                const cambio = dataset.cambios[index];
-                                if (cambio) {
+                                const cambio = dataset.cambios ? dataset.cambios[index] : null;
+                                if (cambio && bar && isFinite(bar.x) && isFinite(bar.y)) {
                                     ctx.save();
                                     ctx.font = 'bold 11px JetBrains Mono';
                                     ctx.textAlign = 'center';
@@ -1278,6 +2955,342 @@
                         });
                     }
                 }]
+            });
+        }
+
+
+        function getMaxHistoricalIndexForCurrentPeriod() {
+            const limits = {
+                '2026-03': '2Q MAR 26',
+                '2026-04': '2Q ABR 26',
+                '2026-05': '1Q MAY 26'
+            };
+            const label = limits[currentPeriod];
+            if (!label) return serieHistorica.periodos.length - 1;
+            const idx = serieHistorica.periodos.indexOf(label);
+            return idx >= 0 ? idx : serieHistorica.periodos.length - 1;
+        }
+
+        function getMaxKpasePeriodKeyForCurrentPeriod() {
+            const limits = {
+                '2026-03': '2026-03',
+                '2026-04': '2026-04',
+                '2026-05': '2026-05'
+            };
+            return limits[currentPeriod] || '9999-12';
+        }
+
+        function showHistorical(obra) {
+            const overlay = document.getElementById('historical-overlay');
+            const title = document.getElementById('historical-title');
+            
+            title.textContent = `Serie Histórica - ${obra}`;
+            overlay.classList.add('active');
+            
+            renderHistoricalChart(obra);
+        }
+
+                function renderHistoricalChart(obra) {
+            const ctx = document.getElementById('historicalChart');
+            
+            if (historicalChart) {
+                historicalChart.destroy();
+            }
+
+            const obraData = serieHistorica[obra];
+            const obraPondData = serieHistoricaPond[obra];
+            if (!obraData && !obraPondData) return;
+
+            const maxVisibleIndex = getMaxHistoricalIndexForCurrentPeriod();
+
+            const martellaData = (obraData ? obraData.martella : []).map((val, i) => ({
+                x: serieHistorica.periodos[i],
+                y: val,
+                index: i
+            })).filter(p => p.y !== null && p.index <= maxVisibleIndex);
+
+            const therockData = (obraData ? obraData.therock : []).map((val, i) => ({
+                x: serieHistorica.periodos[i],
+                y: val,
+                index: i
+            })).filter(p => p.y !== null && p.index <= maxVisibleIndex);
+
+            const promMartella = (obraPondData ? obraPondData.martella : []).map((val, i) => ({
+                x: serieHistoricaPond.periodos[i],
+                y: val,
+                index: i
+            })).filter(p => p.y !== null && p.index <= maxVisibleIndex);
+
+            const promTheRock = (obraPondData ? obraPondData.therock : []).map((val, i) => ({
+                x: serieHistoricaPond.periodos[i],
+                y: val,
+                index: i
+            })).filter(p => p.y !== null && p.index <= maxVisibleIndex);
+
+            const indicesConDatos = [];
+            [martellaData, therockData, promMartella, promTheRock].forEach(arr => {
+                arr.forEach(p => indicesConDatos.push(p.index));
+            });
+            if (!indicesConDatos.length) return;
+
+            historicalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [
+                        {
+                            label: `${obra} - Martella IDX`,
+                            data: martellaData,
+                            borderColor: '#0066CC',
+                            backgroundColor: 'rgba(0, 102, 204, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: '#0066CC',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: `${obra} - The Rock IDX`,
+                            data: therockData,
+                            borderColor: '#DC3545',
+                            backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: '#DC3545',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Prom. Pond. - Martella IDX',
+                            data: promMartella,
+                            borderColor: '#0066CC',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: '#0066CC',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Prom. Pond. - The Rock IDX',
+                            data: promTheRock,
+                            borderColor: '#DC3545',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.4,
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: '#DC3545',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 12,
+                                    weight: 'bold',
+                                    family: 'Manrope'
+                                },
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: '700',
+                                family: 'Manrope'
+                            },
+                            bodyFont: {
+                                size: 13,
+                                family: 'JetBrains Mono'
+                            }
+                        },
+                        datalabels: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                drawBorder: true
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'JetBrains Mono'
+                                }
+                            }
+                        },
+                        x: {
+                            type: 'category',
+                            grid: {
+                                display: true,
+                                color: 'rgba(0, 0, 0, 0.1)',
+                                borderDash: [3, 3]
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: {
+                                    family: 'JetBrains Mono',
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showKpaseHistorical(obra) {
+            const overlay = document.getElementById('kpase-historical-overlay');
+            const title = document.getElementById('kpase-historical-title');
+            
+            title.textContent = `Serie Histórica - ${obra} - Coef. de Pase`;
+            overlay.classList.add('active');
+            
+            renderKpaseChart(obra);
+        }
+
+        function renderKpaseChart(obra) {
+            const ctx = document.getElementById('kpaseChart');
+            
+            if (kpaseChart) {
+                kpaseChart.destroy();
+            }
+
+            const obraData = kpaseHistorico[obra];
+            if (!obraData) return;
+
+            const maxKpasePeriodKey = getMaxKpasePeriodKeyForCurrentPeriod();
+            let filteredObraData = obraData.filter(d => !d.periodKey || d.periodKey <= maxKpasePeriodKey);
+            
+            const labels = filteredObraData.map(d => d.periodo);
+            const paseLicitacion = filteredObraData.map(d => d.pase_licitacion);
+            const paseEsperado = filteredObraData.map(d => d.pase_esperado);
+            const coefPase = filteredObraData.map(d => d.coef_pase);
+
+            kpaseChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Pase Licitación',
+                            data: paseLicitacion,
+                            backgroundColor: 'rgba(76, 175, 80, 0.7)',
+                            borderColor: 'rgba(76, 175, 80, 1)',
+                            borderWidth: 2,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Pase Esperado',
+                            data: paseEsperado,
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 2,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Coef. de Pase (👎 > 1 Desfavorable | 👍 < 1 Favorable)',
+                            data: coefPase,
+                            backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                            borderColor: 'rgba(255, 159, 64, 1)',
+                            borderWidth: 2,
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14,
+                                    weight: 'bold',
+                                    family: 'Manrope'
+                                },
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            padding: 12,
+                            titleFont: {
+                                size: 14,
+                                weight: '700',
+                                family: 'Manrope'
+                            },
+                            bodyFont: {
+                                size: 13,
+                                family: 'JetBrains Mono'
+                            }
+                        },
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            color: '#1e293b',
+                            font: {
+                                weight: 'bold',
+                                size: 11,
+                                family: 'JetBrains Mono'
+                            },
+                            formatter: function(value) {
+                                if (value === null || value === undefined || isNaN(value)) return '';
+                                return Number(value).toFixed(2);
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'JetBrains Mono'
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                font: {
+                                    family: 'JetBrains Mono',
+                                    size: 10
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
 
@@ -1427,10 +3440,16 @@
                 content.style.opacity = '0';
                 
                 setTimeout(() => {
-                    renderDashboard(period);
-                    loading.style.display = 'none';
-                    content.style.opacity = '1';
-                }, 300);
+                    try {
+                        renderDashboard(period);
+                    } catch (err) {
+                        console.error('Error al renderizar dashboard:', err);
+                        content.innerHTML = `<div class="table-card"><h3 class="chart-title">No se pudieron cargar los datos</h3><p>${err.message || err}</p></div>`;
+                    } finally {
+                        loading.style.display = 'none';
+                        content.style.opacity = '1';
+                    }
+                }, 150);
             });
         });
     </script>
