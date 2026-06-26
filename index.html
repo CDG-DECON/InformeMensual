@@ -800,8 +800,8 @@
         // Serie histórica de IDX promedio ponderado
         const promedioPonderadoHistorico = {
             periodos: ['1Q JUN 25', '2Q JUN 25', '1Q JUL 25', '2Q JUL 25', '1Q AGO 25', '2Q AGO 25', '1Q SEP 25', '2Q SEP 25', '1Q OCT 25', '2Q OCT 25', '1Q NOV 25', '2Q NOV 25', '1Q DIC 25', '2Q DIC 25', '1Q ENE 26', '2Q ENE 26', '1Q FEB 26', '2Q FEB 26', '1Q MAR 26', '2Q MAR 26', '1Q ABR 26', '2Q ABR 26', '1Q MAY 26', '2Q MAY 26'],
-            martella: [0.914615, 0.919725, 0.964579, 0.991429, 1.009547, 1.056693, 1.063056, 1.078331, 1.070949, 1.061654, 1.062138, 1.052358, 1.055414, 1.051024, 1.046964, 1.063756, 1.09212, 1.052595, 1.054308, 1.043361, 1.024119, 1.020071],
-            therock: [0.053553, 0.123864, 0.299239, 0.439114, 0.494622, 0.604042, 0.759834, 1.060798, 0.894394, 0.899818, 0.913287, 0.790594, 0.584689, 0.627871, 0.743622, 0.724511, 0.664665, 0.818801, 0.706829, 0.765135, 0.929009, 0.807644]
+            martella: [0.914615, 0.919725, 0.964579, 0.991429, 1.009547, 1.056693, 1.063056, 1.078331, 1.070949, 1.061654, 1.062138, 1.052358, 1.055414, 1.051024, 1.046964, 1.063756, 1.09212, 1.052595, 1.054308, 1.043361, 1.024119, 1.020071, 1.02, 1.02],
+            therock: [0.053553, 0.123864, 0.299239, 0.439114, 0.494622, 0.604042, 0.759834, 1.060798, 0.894394, 0.899818, 0.913287, 0.790594, 0.584689, 0.627871, 0.743622, 0.724511, 0.664665, 0.818801, 0.706829, 0.765135, 0.929009, 0.807644, 0.76, 0.76]
         };
 
         // Serie histórica de k y pase
@@ -810,35 +810,41 @@
                 { periodo: 'Ene 26', pase_licitacion: 1.21, pase_esperado: 1.17, coef_pase: 1.034188 },
                 { periodo: 'Feb 26', pase_licitacion: 1.21, pase_esperado: 1.19, coef_pase: 1.016807 },
                 { periodo: 'Mar 26', pase_licitacion: 1.21, pase_esperado: 1.22, coef_pase: 0.991803 },
-                { periodo: 'Abr 26', pase_licitacion: 1.21, pase_esperado: 1.29, coef_pase: 0.937984 }
+                { periodo: 'Abr 26', pase_licitacion: 1.21, pase_esperado: 1.29, coef_pase: 0.937984 },
+                { periodo: 'May 26', pase_licitacion: 1.2124593731843918, pase_esperado: 1.3083027157841696, coef_pase: 0.926742227587343 }
             ],
             'ARN': [
                 { periodo: 'Ene 26', pase_licitacion: 1.32, pase_esperado: 1.35, coef_pase: 1.014815 },
                 { periodo: 'Feb 26', pase_licitacion: 1.32, pase_esperado: 1.28, coef_pase: 1.03125 },
                 { periodo: 'Mar 26', pase_licitacion: 1.32, pase_esperado: 1.26, coef_pase: 1.047619 },
-                { periodo: 'Abr 26', pase_licitacion: 1.32, pase_esperado: 1.23, coef_pase: 1.073171 }
+                { periodo: 'Abr 26', pase_licitacion: 1.32, pase_esperado: 1.23, coef_pase: 1.073171 },
+                { periodo: 'May 26', pase_licitacion: 1.315346770712763, pase_esperado: 1.1967251383164332, coef_pase: 1.0991218690059508 }
             ],
             'PEDR ALB': [
                 { periodo: 'Ene 26', pase_licitacion: 1.4, pase_esperado: 1.42, coef_pase: 1 },
                 { periodo: 'Feb 26', pase_licitacion: 1.4, pase_esperado: 1.41, coef_pase: 0.992908 },
                 { periodo: 'Mar 26', pase_licitacion: 1.4, pase_esperado: 1.5, coef_pase: 0.933333 },
-                { periodo: 'Abr 26', pase_licitacion: 1.4, pase_esperado: 1.45, coef_pase: 0.965517 }
+                { periodo: 'Abr 26', pase_licitacion: 1.4, pase_esperado: 1.45, coef_pase: 0.965517 },
+                { periodo: 'May 26', pase_licitacion: 1.4027985161170475, pase_esperado: 1.419092626649782, coef_pase: 0.9885179372884193 }
             ],
             'LMB': [
                 { periodo: 'Ene 26', pase_licitacion: 1.29, pase_esperado: 1.33, coef_pase: 1 },
                 { periodo: 'Feb 26', pase_licitacion: 1.29, pase_esperado: 1.28, coef_pase: 1.007812 },
                 { periodo: 'Mar 26', pase_licitacion: 1.29, pase_esperado: 1.26, coef_pase: 1.02381 },
-                { periodo: 'Abr 26', pase_licitacion: 1.29, pase_esperado: 1.23, coef_pase: 1.04878 }
+                { periodo: 'Abr 26', pase_licitacion: 1.29, pase_esperado: 1.23, coef_pase: 1.04878 },
+                { periodo: 'May 26', pase_licitacion: 1.2877093624884506, pase_esperado: 1.2087786875266193, coef_pase: 1.0652978711291956 }
             ],
             'SUP (Etapa 1)': [
                 { periodo: 'Ene 26', pase_licitacion: 1.47, pase_esperado: 1.34, coef_pase: 1 },
                 { periodo: 'Feb 26', pase_licitacion: 1.47, pase_esperado: 1.35, coef_pase: 0.992593 },
                 { periodo: 'Mar 26', pase_licitacion: 1.47, pase_esperado: 1.18, coef_pase: 1.135593 },
-                { periodo: 'Abr 26', pase_licitacion: 1.47, pase_esperado: 1.27, coef_pase: 1.15748 }
+                { periodo: 'Abr 26', pase_licitacion: 1.47, pase_esperado: 1.27, coef_pase: 1.15748 },
+                { periodo: 'May 26', pase_licitacion: 1.2739648486853692, pase_esperado: 1.182344309303453, coef_pase: 1.077490574159309 }
             ],
             'DELG': [
                 { periodo: 'Mar 26', pase_licitacion: 1.31, pase_esperado: 1.33, coef_pase: 0.984962 },
-                { periodo: 'Abr 26', pase_licitacion: 1.31, pase_esperado: 1.29, coef_pase: 1.015504 }
+                { periodo: 'Abr 26', pase_licitacion: 1.31, pase_esperado: 1.29, coef_pase: 1.015504 },
+                { periodo: 'May 26', pase_licitacion: 1.313765268238526, pase_esperado: 1.2883278066159878, coef_pase: 1.019744556852618 }
             ]
         };
 
